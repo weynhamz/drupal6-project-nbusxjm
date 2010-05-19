@@ -13,6 +13,29 @@ function og_admin_settings(&$form_state,$node_type) {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE
   );
+
+  $form['group_details']['og_visibility_selective'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow group owner to control the membership request.'),
+    '#default_value' => variable_get('og_visibility_selective_' . $node_type, TRUE),
+  );
+
+  $options = array(
+    t('Open - membership requests are accepted immediately.'),
+    t('Moderated - membership requests must be approved.'),
+    t('Invite only - membership must be created by an administrator.'),
+    t('Closed - membership is exclusively managed by an administrator.'),
+  );
+  $form['group_details']['og_selective'] = array(
+    '#type' => 'radios',
+    '#title' => t('Membership default'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('og_selective_' . $node_type, TRUE),
+    '#options' => $options,
+    '#weight' => module_exists('content') ? content_extra_field_weight($node->type, 'og_selective') : 0,
+    '#description' => t('How should membership requests be handled in this group? When you select <em>closed</em>, users will not be able to join <strong>or</strong> leave.')
+  );
+
   // groups directory visibility
   $options = array(
     t("New groups don't appear in the groups directory. Administrators control the directory exclusively."),
@@ -60,6 +83,37 @@ function og_admin_settings(&$form_state,$node_type) {
     '#options' => $options,
     '#description' => t('Do you require that all (non administrator) posts be affiliated with a group? Note that changing this setting will affect existing posts when they are edited.')
   );
+
+  if (module_exists('locale') && $languages = locale_language_list()) {
+    if (count($languages) > 1) {
+      $form['group_details']['og_visibility_language'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Allow group owner to control the which language should be used.'),
+        '#default_value' => variable_get('og_visibility_language_' . $node_type, TRUE),
+      );
+
+      $form['group_details']['og_language'] = array(
+        '#type' => 'radios',
+        '#title' => t('Group language'),
+        '#default_value' => $node->og_language,
+        '#options' => array('' => t('Language neutral')) + $languages,
+        '#weight' => module_exists('content') ? content_extra_field_weight($node->type, 'og_language') : 0,
+        '#description' => t('Selecting a different locale will change the interface language for all group pages and emails. Users who have chosen a preferred language always see their chosen language.'),
+      );
+    }
+  }
+
+  if ($theme_form = system_theme_select_form(t('Selecting a different theme will change the look and feel of the group.'), isset($form_state['values']['theme']) ? $form_state['values']['theme'] : $node->og_theme, 2)) {
+    $form['group_details']['og_visibility_themes'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow group owner to control the which theme should be applied.'),
+      '#default_value' => variable_get('og_visibility_themes_' . $node_type, TRUE),
+    );
+    $theme_form['themes']['#weight'] = 8;
+    unset($theme_form['#weight']);
+    $form['group_details']['og_themes'] = $theme_form;
+  }
+
   unset($options);
 
   // Messages fieldset.

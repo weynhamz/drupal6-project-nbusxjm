@@ -1080,22 +1080,26 @@ function og_group_form($node, $form_state) {
     '#weight' => module_exists('content') ? content_extra_field_weight($node->type, 'og_description') : -4,
   );
 
-  $default = isset($node->og_selective) ? $node->og_selective : OG_OPEN;
-  $options = array(
-    t('Open - membership requests are accepted immediately.'),
-    t('Moderated - membership requests must be approved.'),
-    t('Invite only - membership must be created by an administrator.'),
-    t('Closed - membership is exclusively managed by an administrator.'),
-  );
-  $form['og_selective'] = array(
-    '#type' => 'radios',
-    '#title' => t('Membership requests'),
-    '#required' => TRUE,
-    '#default_value' => $default,
-    '#options' => $options,
-    '#weight' => module_exists('content') ? content_extra_field_weight($node->type, 'og_selective') : 0,
-    '#description' => t('How should membership requests be handled in this group? When you select <em>closed</em>, users will not be able to join <strong>or</strong> leave.')
-  );
+  $visibility = variable_get('og_visibility_selective_' . $node->type, TRUE);
+
+  if($visibility || user_access('administer nodes')) {
+    $default = isset($node->og_selective) ? $node->og_selective : OG_OPEN;
+    $options = array(
+      t('Open - membership requests are accepted immediately.'),
+      t('Moderated - membership requests must be approved.'),
+      t('Invite only - membership must be created by an administrator.'),
+      t('Closed - membership is exclusively managed by an administrator.'),
+    );
+    $form['og_selective'] = array(
+      '#type' => 'radios',
+      '#title' => t('Membership requests'),
+      '#required' => TRUE,
+      '#default_value' => $default,
+      '#options' => $options,
+      '#weight' => module_exists('content') ? content_extra_field_weight($node->type, 'og_selective') : 0,
+      '#description' => t('How should membership requests be handled in this group? When you select <em>closed</em>, users will not be able to join <strong>or</strong> leave.')
+    );
+  }
 
   // registration checkbox
   // get the visibility for normal users
@@ -1158,7 +1162,9 @@ function og_group_form($node, $form_state) {
       break;
   }
 
-  if (module_exists('locale') && $languages = locale_language_list()) {
+  $visibility = variable_get('og_visibility_language_' . $node->type, TRUE);
+
+  if (module_exists('locale') && $languages = locale_language_list() && ($visibility || user_access('administer nodes'))) {
     if (count($languages) > 1) {
       $form['og_language'] = array(
         '#type' => 'radios',
@@ -1171,7 +1177,9 @@ function og_group_form($node, $form_state) {
     }
   }
 
-  if ($theme_form = system_theme_select_form(t('Selecting a different theme will change the look and feel of the group.'), isset($form_state['values']['theme']) ? $form_state['values']['theme'] : $node->og_theme, 2)) {
+  $visibility = variable_get('og_visibility_themes_' . $node->type, TRUE);
+
+  if (($theme_form = system_theme_select_form(t('Selecting a different theme will change the look and feel of the group.'), isset($form_state['values']['theme']) ? $form_state['values']['theme'] : $node->og_theme, 2)) && ( $visibility || user_access('administer nodes'))) {
     $theme_form['themes']['#weight'] = 8;
     $form += $theme_form;
   }
