@@ -550,6 +550,23 @@ function sxjmusers_title_perms_rebuild() {
 }
 
 /**
+ * Get roles for a specific user
+ *
+ * @param int $uid
+ *  user uid
+ * @return array
+ *  array of roles
+ */
+function sxjmusers_get_roles($uid) {
+  $return = array();
+  $dbresult = db_query("SELECT ur.rid, r.name FROM {users_roles} ur INNER JOIN {role} r ON ur.rid = r.rid WHERE ur.uid = %d",$uid);
+  while ($result = db_fetch_object($dbresult)) {
+    $return[$result->rid] = $result->name;
+  }
+  return $return;
+}
+
+/**
  * Get the id of a given sxjmusers role.
  *
  * @param string $role
