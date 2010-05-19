@@ -355,12 +355,12 @@ function sxjmusers_admin_title(&$form_state,$uid) {
     '#type' => 'value',
     '#value' => $uid,
   );
-  $form['titles'] = array(
+  $form['usertitle'] = array(
     '#type' => 'fieldset',
     '#title' => t('用户身份'),
     '#weight' => 0,
   );
-  $form['titles']['title'] = array(
+  $form['usertitle']['titles'] = array(
     '#type' => 'checkboxes',
     '#title' => t('身份设置'),
     '#options' => $titles,
@@ -377,10 +377,10 @@ function sxjmusers_admin_title(&$form_state,$uid) {
 
 function sxjmusers_admin_title_submit($form,&$form_state) {
   //使用 user 模块内建的机制来保存角色
-  $title = array_filter($form_state['values']['title']);
-  $title = array_keys($title);
+  $titles = array_filter($form_state['values']['titles']);
+  $titles = array_keys($titles);
   $uid = $form_state['values']['uid'];
-  sxjmusers_title_users_save($title,$uid);
+  sxjmusers_title_users_save($titles,$uid);
 }
 
 function sxjmusers_admin_title_validate($form,&$form_state) {
@@ -389,9 +389,9 @@ function sxjmusers_admin_title_validate($form,&$form_state) {
     form_set_error('submit','您在开玩笑么？');
     return;
   }
-  foreach(array_keys($form_state['values']['title']) as $title) {
+  foreach(array_keys($form_state['values']['titles']) as $title) {
     if (!array_key_exists($title,$titles)) {
-      form_set_error('title','不会是恶意攻击吧。。');
+      form_set_error('titles','不会是恶意攻击吧。。');
     }
   }
 }

@@ -236,11 +236,11 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
       if($category == 'account') {
         $teacher_title_id = sxjmusers_get_title_id('指导老师');
         $student_title_id = sxjmusers_get_title_id('数模会员');
-        if(isset($edit['title']) && isset($edit['title'][$teacher_title_id]) && isset($edit['title'][$student_title_id])) {
-          if ($edit['title'][$teacher_title_id] && $edit['title'][$student_title_id]) {
-            form_set_error('title','不能同时具有“指导老师”和“数模学员”两种身份');
-          } elseif (!$edit['title'][$teacher_title_id] && !$edit['title'][$student_title_id] && $op ) {
-            form_set_error('title','“指导老师”和“数模学员”两种身份必须选择一种');
+        if(isset($edit['titles']) && isset($edit['titles'][$teacher_title_id]) && isset($edit['titles'][$student_title_id])) {
+          if ($edit['titles'][$teacher_title_id] && $edit['titles'][$student_title_id]) {
+            form_set_error('titles','不能同时具有“指导老师”和“数模学员”两种身份');
+          } elseif (!$edit['titles'][$teacher_title_id] && !$edit['titles'][$student_title_id] && $op ) {
+            form_set_error('titles','“指导老师”和“数模学员”两种身份必须选择一种');
           }
         }
       }
