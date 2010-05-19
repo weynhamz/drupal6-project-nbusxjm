@@ -8,12 +8,12 @@
  *  user object
  */
 function sxjmusers_view(&$account) {
-  $role = sxjmusers_get_role($account);
+  $title = sxjmusers_get_basetitle($account);
   $genders = sxjmusers_get_genders();
   $colleges = sxjmusers_get_colleges();
   $mobile_services = sxjmusers_get_mobile_services();
 
-  $fields = sxjmusers_fields($role);
+  $fields = sxjmusers_fields($title);
   $account->content['个人资料'] = array(
     '#type' => 'user_profile_category',
     '#title' => t('个人资料'),
@@ -21,7 +21,7 @@ function sxjmusers_view(&$account) {
   );
   $counter = 0;
   foreach ($fields as $k => $v) {
-    if ($k == 'name' || $k == 'mail' || $k == 'rid') {
+    if ($k == 'name' || $k == 'mail' || $k == 'tid') {
       continue;
     }
     if($k == 'gender') {
@@ -139,13 +139,13 @@ function sxjmusers_title_validate($form,&$form_state) {
   $form_state['redirect'] = 'user/register';
 }
 
-function sxjmusers_realinfo ($values = NULL,$role = NULL) {
+function sxjmusers_realinfo ($values = NULL,$title = NULL) {
 
   jquery_ui_add(array('ui.datepicker','i18n/ui.datepicker-zh-CN'));
   drupal_add_js(array('sxjmusers' => array('path' => drupal_get_path('module', 'sxjmusers'))),'setting');
   drupal_add_js(drupal_get_path('module', 'sxjmusers') . '/scripts/sxjmusers.datepicker.js');
 
-  $fields = sxjmusers_fields($role);
+  $fields = sxjmusers_fields($title);
   $form['realinfo'] = array(
     '#type' => 'fieldset',
     '#title' => t('个人资料'),
@@ -269,18 +269,18 @@ function sxjmusers_realinfo_save(&$edit, $account, $category, $is_update = FALSE
     $fields = sxjmusers_fields();
     $fields_name = array_keys($fields);
     foreach($fields as $name => $field) {
-      if ($name == 'name' || $name == 'mail' || $name == 'rid') {
+      if ($name == 'name' || $name == 'mail' || $name == 'tid') {
         continue;
       }
       $fields_type[]= $field['type'];
     }
     foreach ($fields_name as $key => $name) {
-      if ($name == 'name' || $name == 'mail' || $name == 'rid') {
+      if ($name == 'name' || $name == 'mail' || $name == 'tid') {
         unset($fields_name[$key]);
         continue;
       }
       if(!isset($edit[$name]) && !$is_update) {
-        if ($name != 'uid' && $name != 'rid' && $name != 'reg_year' && $name != 'quit_time' && $name != 'current_state') {
+        if ($name != 'uid' && $name != 'tid' && $name != 'reg_year' && $name != 'quit_time' && $name != 'current_state') {
           form_set_error($name,t("出现错误，这不是更新表单，但是 $name 项未设置！"));
         }
       }

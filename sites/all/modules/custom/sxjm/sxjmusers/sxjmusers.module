@@ -189,6 +189,13 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
           if(isset($result->$key)) $account->$key = $result->$key;
         }
       }
+      //加载数学建模用户身份
+      $account->titles = array();
+      $titles = sxjmusers_titles();
+      $dbresult = db_query("SELECT tid FROM {sxjmusers_title_users} WHERE `uid` = '%d'", $account->uid);
+      while ($result = db_fetch_object($dbresult)) {
+        $account->titles[] = $titles[$result->tid];
+      }
       break;
     case 'login':
       if(!is_sxjmusers($account->uid)) break;
@@ -210,12 +217,12 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
       $form = array();
       if($category == '个人资料') {
         //添加表单的默认值
-        $role = sxjmusers_get_role($account);
+        $title = sxjmusers_get_basetitle($account);
         $fields = sxjmusers_fields();
         foreach (array_keys($fields) as $key) {
           if (isset($account->$key)) $info[$key] = $account->$key;
         }
-        $form = sxjmusers_realinfo($info,$role);
+        $form = sxjmusers_realinfo($info,$title);
         // 添加表单的验证函数
         $form['#validate'][] = 'sxjmusers_register_validate';
       }
@@ -402,37 +409,37 @@ function sxjmusers_timeup_notification($account) {
 }
 
 /**
- * Get the sxjmusers role id of a given user.
+ * Get the sxjmusers base title id of a given user.
  *
  * @param object $account
  *  user object
  * @return int
- *  sxjmusers role id
+ *  sxjmusers base title id
  */
-function sxjmusers_get_role($account) {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $student_role_id = sxjmusers_get_role_id('数模会员');
+function sxjmusers_get_basetitle($account) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
   // 指导老师和数模会员二者只能选其一
-  $role = (in_array('指导老师',$account->roles) && !in_array('数模学员',$account->roles))?$teacher_role_id:$student_role_id;
-  return $role;
+  $title = (in_array('指导老师',$account->titles) && !in_array('数模学员',$account->titles))?$teacher_title_id:$student_title_id;
+  return $title;
 }
 
 /**
- * Get the sxjmusers role of a given uid.
+ * Get the sxjmusers base title id of a given uid.
  *
  * @param int $uid
  *  user uid
  * @return string
- *  sxjmusers role
+ *  sxjmusers base title
  */
-function sxjmusers_get_role_from_uid($uid) {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $student_role_id = sxjmusers_get_role_id('数模会员');
-  $result = db_query("SELECT ur.rid FROM {users_roles} ur WHERE ur.uid=%d", $uid);
-  while ($role = db_fetch_object($result)) {
-    if ($role->rid == $teacher_role_id) {
+function sxjmusers_get_basetitle_from_uid($uid) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
+  $result = db_query("SELECT stu.tid FROM {sxjmusers_title_users} stu WHERE stu.uid = %d", $uid);
+  while ($title = db_fetch_object($result)) {
+    if ($title->tid == $teacher_title_id) {
       return '指导老师';
-    } elseif ($role->rid == $student_role_id) {
+    } elseif ($title->tid == $student_title_id) {
       return '数模会员';
     } else {
       return FALSE;
