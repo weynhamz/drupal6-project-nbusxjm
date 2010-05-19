@@ -217,12 +217,12 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
       $form = array();
       if($category == '个人资料') {
         //添加表单的默认值
-        $role = sxjmusers_get_role($account);
+        $title = sxjmusers_get_basetitle($account);
         $fields = sxjmusers_fields();
         foreach (array_keys($fields) as $key) {
           if (isset($account->$key)) $info[$key] = $account->$key;
         }
-        $form = sxjmusers_realinfo($info,$role);
+        $form = sxjmusers_realinfo($info,$title);
         // 添加表单的验证函数
         $form['#validate'][] = 'sxjmusers_register_validate';
       }
@@ -409,19 +409,19 @@ function sxjmusers_timeup_notification($account) {
 }
 
 /**
- * Get the sxjmusers role id of a given user.
+ * Get the sxjmusers base title id of a given user.
  *
  * @param object $account
  *  user object
  * @return int
- *  sxjmusers role id
+ *  sxjmusers base title id
  */
-function sxjmusers_get_role($account) {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $student_role_id = sxjmusers_get_role_id('数模会员');
+function sxjmusers_get_basetitle($account) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
   // 指导老师和数模会员二者只能选其一
-  $role = (in_array('指导老师',$account->roles) && !in_array('数模学员',$account->roles))?$teacher_role_id:$student_role_id;
-  return $role;
+  $title = (in_array('指导老师',$account->titles) && !in_array('数模学员',$account->titles))?$teacher_title_id:$student_title_id;
+  return $title;
 }
 
 /**

@@ -8,12 +8,12 @@
  *  user object
  */
 function sxjmusers_view(&$account) {
-  $role = sxjmusers_get_role($account);
+  $title = sxjmusers_get_basetitle($account);
   $genders = sxjmusers_get_genders();
   $colleges = sxjmusers_get_colleges();
   $mobile_services = sxjmusers_get_mobile_services();
 
-  $fields = sxjmusers_fields($role);
+  $fields = sxjmusers_fields($title);
   $account->content['个人资料'] = array(
     '#type' => 'user_profile_category',
     '#title' => t('个人资料'),
