@@ -634,7 +634,7 @@ function sxjmusers_get_role_id($role) {
 function sxjmusers_titles() {
   $titles = array();
 
-  $result = db_query('SELECT tid,name FROM {sxjmusers_title} ORDER BY name');
+  $result = db_query('SELECT tid,name FROM {sxjmusers_title} ORDER BY tid');
 
   while ($title = db_fetch_object($result)) {
     $titles[$title->tid] = $title->name;
