@@ -1941,6 +1941,9 @@ function og_get_sql_args() {
   return array($types, $in);
 }
 
+/**
+ * Implementation of hook_user().
+ */
 function og_user($op, $edit, &$account, $category = NULL) {
   global $user;
 
