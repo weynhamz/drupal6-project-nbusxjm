@@ -404,16 +404,16 @@ function sxjmusers_timeup_notification($account) {
 /**
  * Get the sxjmusers role id of a given user.
  *
- * @param object $user
+ * @param object $account
  *  user object
  * @return int
  *  sxjmusers role id
  */
-function sxjmusers_get_role($user) {
+function sxjmusers_get_role($account) {
   $teacher_role_id = sxjmusers_get_role_id('指导老师');
   $student_role_id = sxjmusers_get_role_id('数模会员');
   // 指导老师和数模会员二者只能选其一
-  $role = (in_array('指导老师',$user->roles) && !in_array('数模学员',$user->roles))?$teacher_role_id:$student_role_id;
+  $role = (in_array('指导老师',$account->roles) && !in_array('数模学员',$account->roles))?$teacher_role_id:$student_role_id;
   return $role;
 }
 
