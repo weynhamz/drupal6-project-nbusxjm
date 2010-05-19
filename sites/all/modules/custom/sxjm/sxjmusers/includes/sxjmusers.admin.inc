@@ -57,7 +57,7 @@ function sxjmusers_filters_form($form) {
   foreach($status as $k => $v) {
     $status[$k]['options']['--none--'] = '<无>';
   }
-  $search = sxjmusers_search();
+  $searchs = sxjmusers_searchs();
 
   $field_session = &$_SESSION['sxjmusers_fields'];
   $field_session = is_array($field_session) ? $field_session : array();
@@ -105,7 +105,7 @@ function sxjmusers_filters_form($form) {
     '#description' => t('输入相关字段的关键字进行过滤。'),
     '#tree' => TRUE,
   );
-  foreach ($search as $key => $value) {
+  foreach ($searchs as $key => $value) {
     $form['filters']['search'][$key] = array(
       '#type' => 'textfield',
       '#title' => $value['title'],
@@ -434,7 +434,7 @@ function sxjmusers_status_query_build() {
 function sxjmusers_search_query_build() {
   $where = $args = array();
 
-  $searchs = sxjmusers_search();
+  $searchs = sxjmusers_searchs();
 
   $sxjmusers_search = isset($_SESSION['sxjmusers_search'])?$_SESSION['sxjmusers_search']:array();
 
@@ -674,7 +674,7 @@ function sxjmusers_options() {
  * @return array
  *  sxjmusers search array
  */
-function sxjmusers_search() {
+function sxjmusers_searchs() {
   $searchs = array();
   $searchs['username'] = array (
     'title' => '学号',
