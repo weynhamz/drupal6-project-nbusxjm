@@ -264,7 +264,7 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
         array(
          'name' => '个人资料',
          'title' => '个人资料',
-         'access callback' => 'sxjmusers_category_access',
+         'access callback' => 'sxjmusers_access_category',
          'access arguments' => array(1, '个人资料'),
          'weight' => 3,
         )
@@ -385,7 +385,7 @@ function sxjmusers_state_current($state) {
 /**
  * Menu item access callback - check if a user has access to a profile category.
  */
-function sxjmusers_category_access($account, $category) {
+function sxjmusers_access_category($account, $category) {
   return user_edit_access($account) && is_sxjmusers($account->uid);
 }
 
