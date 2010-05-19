@@ -90,7 +90,7 @@ function sxjmusers_filters_form($form) {
       '#type' => 'select',
       '#title' => $value['title'],
       '#options' => $value['options'],
-      '#multiple' => TRUE,
+      '#multiple' => ($key != 'title')?TRUE:FALSE,
     );
     if (!empty($status_session[$key])) {
       $form['filters']['status'][$key]['#default_value'] = $status_session[$key];
@@ -404,6 +404,8 @@ function sxjmusers_status_query_build() {
   foreach ( $sxjmusers_filter as $key => $filter) {
     $filter_where = array();
     if(empty($filter)) $filter = array();
+    //titlle filter is not a multiple select boxes.
+    if($key == 'title') $filter = array($filter);
     //multiple select boxes.
     foreach ($filter as $value) {
       if($value == '--none--') continue;
