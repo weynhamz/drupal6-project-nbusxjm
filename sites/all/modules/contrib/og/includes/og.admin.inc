@@ -161,7 +161,51 @@ function og_admin_settings(&$form_state,$node_type) {
     '#default_value' => _og_mail_text('og_new_admin_body')
   );
 
-  return system_settings_form($form);
+  $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration') );
+  $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults') );
+
+  if (!empty($_POST) && form_get_errors()) {
+    drupal_set_message(t('The settings have not been saved because of the errors.'), 'error');
+  }
+
+  return $form;
+}
+
+function og_admin_settings_validate($form, &$form_state) {
+  //如果不显示某些条目，则需要保证相关默认设置已经设定
+}
+
+function og_admin_settings_submit($form, &$form_state) {
+  $op = $form_state['values']['op'];
+
+  $node_type = $form_state['og_node_type'];
+  $variables = $form_state['values'];
+
+  unset($variables['form_token'], $variables['op'], $variables['submit'], $variables['delete'], $variables['reset'], $variables['form_id']);
+
+  $t_args = array('%name' => $node_type);
+
+  // Save or reset persistent variable values.
+  foreach ($variables as $key => $value) {
+    $variable = $key . '_' . $node_type;
+    if ($op == t('Reset to defaults')) {
+      variable_del($variable);
+    }
+    else {
+      variable_del($variable);
+      if (is_array($value)) {
+        $value = array_keys(array_filter($value));
+      }
+      variable_set($variable, $value);
+    }
+  }
+
+  if ($op == t('Reset to defaults')) {
+    drupal_set_message(t('The content type %name has been reset to its default values.', $t_args));
+  }
+  else {
+    drupal_set_message(t('The content type %name has been saved.', $t_args));
+  }
 }
 
 function og_summarize() {
