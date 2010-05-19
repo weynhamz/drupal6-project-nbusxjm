@@ -2466,6 +2466,14 @@ function og_token_values($type, $object = NULL) {
         }
         return $values;
       }
+      elseif(og_is_group_type($object->type)){
+        $values['ogname'] = check_plain($object->title);
+        $values['ogname-raw'] = $object->title;
+        $values['og-id'] = $object->nid;
+        $values['og-type'] = check_plain($object->type);
+        $values['ogalias'] = drupal_get_path_alias('node/'. $object->nid);
+        return $values;
+      }
       break;
   }
   return $values;
