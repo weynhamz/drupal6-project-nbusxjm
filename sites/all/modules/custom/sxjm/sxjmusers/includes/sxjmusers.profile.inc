@@ -126,7 +126,7 @@ function sxjmusers_title_save(&$edit, &$account, $category) {
   //radio 表单，只有一项
   //这里暂不对用户添加系统用户角色，只是赋予一定的数模用户身份，当
   //用户通过审核后，再赋予系统用户角色
-  sxjmusers_title_users_save(array($edit['title']),$edit['uid']);
+  sxjmusers_title_add($edit['uid'],array($edit['title']));
 }
 
 function sxjmusers_title_validate($form,&$form_state) {
@@ -347,4 +347,70 @@ function sxjmusers_realinfo_validate($form,&$form_state) {
   if (!ereg('^[0-9]*$',$mphone_short))
     form_set_error('mphone_short', t('您填写的移动短号可能不正确，请检查！'));
   //添加 birthday 的格式检查
+}
+
+function sxjmusers_admin_title($uid) {
+  $titles = sxjmusers_titles();
+  $user_titles = array_keys(sxjmusers_get_titles($uid));
+  $form['uid'] = array(
+    '#type' => 'value',
+    '#value' => $uid,
+  );
+  $form['usertitle'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('用户身份'),
+    '#weight' => 0,
+  );
+  $form['usertitle']['titles'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('身份设置'),
+    '#options' => $titles,
+    '#description' => t('用户的身份'),
+    '#default_value' =>$user_titles,
+    '#after_build'=> array('sxjmusers_admin_title_after_build'),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('确定'),
+  );
+  return $form;
+}
+
+function sxjmusers_admin_title_save($edit, $account, $category) {
+  $title = array_filter($edit['titles']);
+  sxjmusers_title_add($edit['uid'],$title);
+}
+
+function sxjmusers_admin_title_validate($form,&$form_state) {
+  $titles = sxjmusers_titles();
+  if(!isset($form_state['values']['titles'])) {
+    form_set_error('submit','您在开玩笑么？');
+    return;
+  }
+  foreach(array_keys($form_state['values']['titles']) as $title) {
+    if (!array_key_exists($title,$titles)) {
+      form_set_error('titles','不会是恶意攻击吧。。');
+    }
+  }
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
+  if(isset($form_state['values']['title']) && isset($form_state['values']['title'][$teacher_title_id]) && isset($form_state['values']['title'][$student_title_id])) {
+    if ($form_state['values']['title'][$teacher_title_id] && $form_state['values']['title'][$student_title_id]) {
+      form_set_error('title','不能同时具有“指导老师”和“数模学员”两种身份');
+    } elseif (!$form_state['values']['title'][$teacher_title_id] && !$form_state['values']['title'][$student_title_id] && $op ) {
+      form_set_error('title','“指导老师”和“数模学员”两种身份必须选择一种');
+    }
+  }
+}
+
+function sxjmusers_admin_title_after_build($element,&$form_state) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
+  //当用户未数学建模用户时，禁止编辑基本的身份
+  if(is_sxjmusers($form_state['values']['uid'])) {
+    $element[$teacher_title_id]['#attributes']['readonly']='readonly';
+    $element[$student_title_id]['#attributes']['readonly']='readonly';
+  }
+  return $element;
 }
