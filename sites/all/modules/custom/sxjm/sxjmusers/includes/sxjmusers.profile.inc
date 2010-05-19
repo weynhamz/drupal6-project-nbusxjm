@@ -126,7 +126,7 @@ function sxjmusers_title_save(&$edit, &$account, $category) {
   //radio 表单，只有一项
   //这里暂不对用户添加系统用户角色，只是赋予一定的数模用户身份，当
   //用户通过审核后，再赋予系统用户角色
-  sxjmusers_title_users_save(array($edit['title']),$edit['uid']);
+  sxjmusers_title_add($edit['uid'],array($edit['title']));
 }
 
 function sxjmusers_title_validate($form,&$form_state) {
@@ -380,7 +380,7 @@ function sxjmusers_admin_title_submit($form,&$form_state) {
   $titles = array_filter($form_state['values']['titles']);
   $titles = array_keys($titles);
   $uid = $form_state['values']['uid'];
-  sxjmusers_title_users_save($titles,$uid);
+  sxjmusers_title_add($uid,$titles);
 }
 
 function sxjmusers_admin_title_validate($form,&$form_state) {

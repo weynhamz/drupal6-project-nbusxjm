@@ -507,6 +507,23 @@ function sxjmusers_title_delete($title) {
   db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
 }
 
+/**
+ * Add given titles for a specific user.
+ *
+ * @param array $titles
+ *  array of titles
+ * @param int $uid
+ *  user uid
+ */
+function sxjmusers_title_add($uid,$titles) {
+  db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d", $uid);
+  foreach($titles as $title) {
+    if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title_users} WHERE uid = %d AND tid = %d", $uid, $title))) {
+      db_query("INSERT INTO {sxjmusers_title_users} (uid,tid) VALUES (%d,%d)", $uid, $title);
+    }
+  }
+}
+
 function sxjmusers_title_operate($op,$titles) {
   switch($op){
     case 'create':
@@ -608,19 +625,6 @@ function sxjmusers_get_titles($uid) {
     $return[$result->tid] = $result->name;
   }
   return $return;
-}
-
-/**
- *
- * @param array $title
- * @param unknown_type $uid
- */
-function sxjmusers_title_users_save($title,$uid) {
-  foreach($title as $tid) {
-    db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d", $uid);
-    db_query("INSERT INTO {sxjmusers_title_users} (uid,tid) VALUES (%d,%d)", $uid,$tid);
-  }
-  sxjmusers_title_permission_rebuild();
 }
 
 /**
