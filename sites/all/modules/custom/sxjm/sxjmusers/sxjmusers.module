@@ -445,19 +445,6 @@ function sxjmusers_get_basetitle_from_uid($uid) {
   }
 }
 
-function sxjmusers_role_insert($role) {
-  if (!db_result(db_query("SELECT COUNT(*) FROM {role} WHERE name = '%s'", $role))) {
-    db_query("INSERT INTO {role} (name) VALUES ('%s')", $role);
-  }
-}
-
-function sxjmusers_role_delete($role) {
-  $role_id = sxjmusers_get_role_id($role);
-  db_query('DELETE FROM {role} WHERE rid = %d', $role_id);
-  db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
-  db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
-}
-
 function sxjmusers_role_add($uid,$roles) {
   foreach ($roles as $role) {
     $role_id = sxjmusers_get_role_id($role);
@@ -467,16 +454,37 @@ function sxjmusers_role_add($uid,$roles) {
   }
 }
 
+/**
+ * Delete given roles of a specific user.
+ *
+ * @param int $uid
+ *  user uid
+ * @param array $roles
+ *  array of roles to be deleted
+ */
+function sxjmusers_role_delete($uid,$roles) {
+  $roles = array_filter($roles);
+  foreach ($roles as $role) {
+    $role_id = sxjmusers_get_role_id($role);
+    db_query("DELETE FROM {users_roles} WHERE uid = %d AND rid = %d", $uid,$role_id);
+  }
+}
+
 function sxjmusers_role_operate($op,$roles){
   switch($op){
     case 'create':
       foreach($roles as $role) {
-        sxjmusers_role_insert($role);
+        if (!db_result(db_query("SELECT COUNT(*) FROM {role} WHERE name = '%s'", $role))) {
+          db_query("INSERT INTO {role} (name) VALUES ('%s')", $role);
+        }
       }
       break;
     case 'delete':
       foreach($roles as $role) {
-        sxjmusers_role_delete($role);
+        $role_id = sxjmusers_get_role_id($role);
+        db_query('DELETE FROM {role} WHERE rid = %d', $role_id);
+        db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
+        db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
       }
       break;
   }
@@ -491,18 +499,6 @@ function sxjmusers_role_perms_grant($role,$perms) {
   $perms_old = array_merge($perms_2,$perms_old);
   db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
   db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $role_id, implode(', ',$perms_old));
-}
-
-function sxjmusers_title_insert($title) {
-  if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title} WHERE name = '%s'", $title))) {
-    db_query("INSERT INTO {sxjmusers_title} (name) VALUES ('%s')", $title);
-  }
-}
-
-function sxjmusers_title_delete($title) {
-  $title_id = sxjmusers_get_title_id($title);
-  db_query('DELETE FROM {sxjmusers_title} WHERE tid = %d', $title_id);
-  db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
 }
 
 /**
@@ -522,16 +518,35 @@ function sxjmusers_title_add($uid,$titles) {
   }
 }
 
+/**
+ * Delete given titles for a specific user.
+ *
+ * @param array $titles
+ *  array of titles
+ * @param int $uid
+ *  user uid
+ */
+function sxjmusers_title_delete($uid,$titles) {
+  db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d", $uid);
+  foreach($titles as $title) {
+    db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d AND tid = %d", $uid,$title);
+  }
+}
+
 function sxjmusers_title_operate($op,$titles) {
   switch($op){
     case 'create':
       foreach($titles as $title) {
-        sxjmusers_title_insert($title);
+        if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title} WHERE name = '%s'", $title))) {
+          db_query("INSERT INTO {sxjmusers_title} (name) VALUES ('%s')", $title);
+        }
       }
       break;
     case 'delete':
       foreach($titles as $title) {
-        sxjmusers_title_delete($title);
+        $title_id = sxjmusers_get_title_id($title);
+        db_query('DELETE FROM {sxjmusers_title} WHERE tid = %d', $title_id);
+        db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
       }
       break;
   }
@@ -548,7 +563,7 @@ function sxjmusers_title_roles_grant($title,$roles) {
   sxjmusers_title_perms_rebuild();
 }
 
-function sxjmusers_title_perms_rebuild() {
+function sxjmusers_title_perms_remove($uid) {
   $titles = db_query('SELECT tid,roles FROM {sxjmusers_title}');
 
   $titles_roles = array();
@@ -557,7 +572,27 @@ function sxjmusers_title_perms_rebuild() {
   }
   $titles_roles = array_filter($titles_roles);
 
-  $result = db_query("SELECT * FROM {sxjmusers_title_users}");
+  $result = db_query("SELECT * FROM {sxjmusers_title_users} WHERE uid = %d",$uid);
+
+  while ($row = db_fetch_object($result)) {
+    sxjmusers_role_delete($row->uid,$titles_roles[$row->tid]);
+  }
+}
+
+function sxjmusers_title_perms_rebuild($uid = NULL) {
+  $titles = db_query('SELECT tid,roles FROM {sxjmusers_title}');
+
+  $titles_roles = array();
+  while ($title = db_fetch_object($titles)) {
+    $titles_roles[$title->tid] = explode(', ',$title->roles);
+  }
+  $titles_roles = array_filter($titles_roles);
+
+  if(isset($uid)) {
+    $result = db_query("SELECT * FROM {sxjmusers_title_users} WHERE uid = %d",$uid);
+  } else {
+    $result = db_query("SELECT * FROM {sxjmusers_title_users}");
+  }
 
   while ($row = db_fetch_object($result)) {
     sxjmusers_role_add($row->uid,$titles_roles[$row->tid]);
