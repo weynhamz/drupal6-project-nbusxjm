@@ -89,16 +89,6 @@ function sxjmusers_menu() {
     'description' => '管理数学建模用户',
     'weight' => 1,
   );
-  $items['sxjm/user/admin/title/%'] = array(
-    'type' => MENU_CALLBACK,
-    'title' => '身份设置',
-    'description' => '管理数学建模用户',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('sxjmusers_admin_title',4),
-    'access callback' => 'sxjmusers_access',
-    'access arguments' => array('管理数学建模用户'),
-    'weight' => 1,
-  );
   $items['sxjm/user/settings'] = array(
     'type' => MENU_LOCAL_TASK,
     'title' => '设置',

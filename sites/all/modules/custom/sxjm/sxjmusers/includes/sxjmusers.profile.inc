@@ -349,7 +349,7 @@ function sxjmusers_realinfo_validate($form,&$form_state) {
   //添加 birthday 的格式检查
 }
 
-function sxjmusers_admin_title(&$form_state,$uid) {
+function sxjmusers_admin_title($uid) {
   $titles = sxjmusers_titles();
   $form['uid'] = array(
     '#type' => 'value',

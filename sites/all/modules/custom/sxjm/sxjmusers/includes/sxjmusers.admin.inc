@@ -303,7 +303,6 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
       }
     }
     $form['operations_edit'][$sxjmuserss->uid] = array('#value' => l(t('edit'), "user/$sxjmuserss->uid/edit", array('query' => $destination)));
-    $form['operations_title'][$sxjmuserss->uid] = array('#value' => l(t('身份设置'), "sxjm/user/admin/title/$sxjmuserss->uid", array('query' => $destination)));
   }
 
   $form['accounts'] = array(
@@ -955,8 +954,6 @@ function theme_sxjmusers_accounts($form) {
 
       if(!$print) {
         $str = drupal_render($form['operations_edit'][$name]);
-        $str .= ' ';
-        $str .= drupal_render($form['operations_title'][$name]);
         $row[] = $str;
       }
 
