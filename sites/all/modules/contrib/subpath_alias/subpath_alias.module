@@ -30,8 +30,8 @@ function subpath_alias_get_ancestors($parts) {
       continue;
     }
     elseif ($i < (1 << $length)) {
-      // We have exhausted the masks of a given length, so decrease the length.
-      --$length;
+      // We only need to match the masks of a given length.
+      break;
     }
     $current = '';
     for ($j = $length; $j >= 0; $j--) {
@@ -78,6 +78,15 @@ function subpath_alias_url_inbound_alter(&$path, $original_path, $path_language)
     // drupal_lookup_path(). Add to $map to avoid unnecessary future lookups.
     if ($path != $original_path) {
       $map[$path_language][$path] = $original_path;
+      return;
+    }
+
+    // If the given path has been predefined in the menu regestry, skip it.
+    require_once './includes/menu.inc'; // Needed for MENU_MAX_PARTS
+    $parts = explode('/', $path, MENU_MAX_PARTS);
+    list($ancestors, $placeholders) = subpath_alias_get_ancestors($parts);
+    $found = db_fetch_array(db_query_range('SELECT * FROM {menu_router} WHERE path IN ('. implode (',', $placeholders) .') ORDER BY fit DESC', $ancestors, 0, 1));
+    if(!empty($found)) {
       return;
     }
 
