@@ -29,8 +29,8 @@ function sxjmcomp_enable() {
   sxjmusers_role_operate('create',$roles);
   //Grant default permissions to role
   $role_perms = sxjmcomp_role_perms();
-  foreach($role_perms as $key => $value) {
-    sxjmusers_role_perms_grant($value,$key);
+  foreach($role_perms as $role => $perms) {
+    sxjmusers_role_perms_grant($perms,$role);
   }
   //Add titles
   $titles = sxjmusers_title_define();
