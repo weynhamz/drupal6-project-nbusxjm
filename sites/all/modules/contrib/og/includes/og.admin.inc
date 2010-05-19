@@ -4,7 +4,8 @@
 /**
  * Menu callback to load settings form.
  */
-function og_admin_settings() {
+function og_admin_settings(&$form_state,$node_type) {
+  $form_state['og_node_type'] = $node_type == NULL?'global':$node_type;
 
   $form['group_details'] = array(
     '#type' => 'fieldset',
@@ -22,7 +23,7 @@ function og_admin_settings() {
   $form['group_details']['og_visibility_directory'] = array(
     '#type' => 'radios',
     '#title' => t('Groups directory control'),
-    '#default_value' => variable_get('og_visibility_directory', OG_DIRECTORY_CHOOSE_TRUE),
+    '#default_value' => variable_get('og_visibility_directory_' . $node_type, OG_DIRECTORY_CHOOSE_TRUE),
     '#description' =>t('Site admins always see the checkbox for adding a group to the <em>groups directory</em>. Note that changing this setting has no effect on existing posts. Re-save those posts to acquire this new setting.'),
     '#options' => $options
   );
@@ -37,7 +38,7 @@ function og_admin_settings() {
   $form['group_details']['og_visibility_registration'] = array(
     '#type' => 'radios',
     '#title' => t('Registration form control'),
-    '#default_value' => variable_get('og_visibility_registration', OG_REGISTRATION_CHOOSE_FALSE),
+    '#default_value' => variable_get('og_visibility_registration_' . $node_type, OG_REGISTRATION_CHOOSE_FALSE),
     '#description' =>t('OG admins always see the checkbox for adding a group to the <em>registration form</em>. Note that changing this setting has no effect on existing posts. Re-save those posts to acquire this new setting.'),
     '#options' => $options
   );
@@ -46,7 +47,7 @@ function og_admin_settings() {
   $form['group_details']['og_audience_checkboxes'] = array(
     '#type' => 'checkbox',
     '#title' => t('Audience checkboxes'),
-    '#default_value' => variable_get('og_audience_checkboxes', TRUE),
+    '#default_value' => variable_get('og_audience_checkboxes_' . $node_type, TRUE),
     '#description' => t('Show each group that the user is a member of as a checkbox in the "Audience" section. This enables the member to place her post into multiple groups. If unchecked, simplify the user interface by omitting the checkboxes and assuming user wants to post into the current group. This simplification only applies to new nodes, and not to edits of existing nodes. Group administrators always see checkboxes.')
   );
 
@@ -55,7 +56,7 @@ function og_admin_settings() {
   $form['group_details']['og_audience_required'] = array(
     '#type' => 'radios',
     '#title' => t('Audience required'),
-    '#default_value' => variable_get('og_audience_required', 0),
+    '#default_value' => variable_get('og_audience_required_' . $node_type, 0),
     '#options' => $options,
     '#description' => t('Do you require that all (non administrator) posts be affiliated with a group? Note that changing this setting will affect existing posts when they are edited.')
   );
@@ -71,7 +72,7 @@ function og_admin_settings() {
   $form['notifications']['og_email_notification_pattern'] = array(
     '#type' => 'textfield',
     '#title' => t('Format of "From:" field'),
-    '#default_value' => variable_get("og_email_notification_pattern", '@user_name  <@site_mail>'),
+    '#default_value' => variable_get('og_email_notification_pattern_' . $node_type,'@user_name  <@site_mail>'),
     '#description' => t('Specify the format of the "From:" field on outgoing notifications. Available variables: @user_mail, @user_name, @site_mail, @site_name. Note that the @user_mail token reveals the author\'s email address. If the admin email examples above appear blank, you need to set your site email in the "Site information" panel.'),
   );
   $form['notifications']['og_new_node_subject'] = array(

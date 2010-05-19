@@ -182,6 +182,37 @@ function og_menu() {
     'weight' => -5,
   );
 
+  $items['admin/og/og/ctypes'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => 'Organic Groups Configuration',
+    'description' => 'Configure the main Organic groups module (og).',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('og_admin_settings',4),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'og.admin.inc',
+    'file path' => drupal_get_path('module', 'og'). '/includes',
+  );
+
+  $items['admin/og/og/ctypes/global'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => t('Global'),
+  );
+
+  $node_types = content_types();
+  foreach($node_types as $node_type) {
+  	if(!og_is_group_type($node_type['type'])) continue;
+    $items['admin/og/og/ctypes/' . $node_type['type']] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => $node_type['name'],
+      'description' => 'Configure the main Organic groups module (og).',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('og_admin_settings',4),
+	    'access arguments' => array('administer site configuration'),
+	    'file' => 'og.admin.inc',
+	    'file path' => drupal_get_path('module', 'og'). '/includes',
+    );
+  }
+
   return $items;
 }
 
@@ -1068,7 +1099,7 @@ function og_group_form($node, $form_state) {
 
   // registration checkbox
   // get the visibility for normal users
-  $visibility = variable_get('og_visibility_registration', OG_REGISTRATION_CHOOSE_FALSE);
+  $visibility = variable_get('og_visibility_registration_' . $node->type, OG_REGISTRATION_CHOOSE_FALSE);
 
   // admin can always choose registration checkbox - get right default
   if (user_access('administer nodes')) {
@@ -1099,7 +1130,7 @@ function og_group_form($node, $form_state) {
 
 
   // directory checkbox
-  $visibility = variable_get('og_visibility_directory', OG_DIRECTORY_CHOOSE_TRUE);
+  $visibility = variable_get('og_visibility_directory_' . $node->type, OG_DIRECTORY_CHOOSE_TRUE);
 
   // override for admins - get right default
   if (user_access('administer nodes')) {
@@ -1297,7 +1328,7 @@ function og_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
     case 'validate':
       // Ensure that a group is selected if groups are required. needed when
       // author has no groups. In other cases, fapi does the validation.
-      if (og_is_group_post_type($node->type) && variable_get('og_audience_required', FALSE) && !user_access('administer nodes')) {
+      if (og_is_group_post_type($node->type) && variable_get('og_audience_required_' . $node->type, FALSE) && !user_access('administer nodes')) {
         if (!isset($node->og_groups)) {
           form_set_error('title', t('You must <a href="@join">join a group</a> before posting on this web site.', array('@join' => url('og'))));
         }
@@ -1759,7 +1790,7 @@ function og_form_add_og_audience(&$form, &$form_state) {
   }
 
   $node = $form['#node'];
-  $required = variable_get('og_audience_required', 0) && !user_access('administer nodes');
+  $required = variable_get('og_audience_required_' . $node->type, 0) && !user_access('administer nodes');
   $is_optgroup = FALSE;
 
   // Determine the list of groups that are shown.
@@ -1813,7 +1844,7 @@ function og_form_add_og_audience(&$form, &$form_state) {
   }
 
   // Show read only item if we are non-admin, and in simple mode (i.e. non-checkboxes) and at least one group is in querystring
-  $simple = !user_access('administer organic groups') && !variable_get('og_audience_checkboxes', TRUE) && count($gids);
+  $simple = !user_access('administer organic groups') && !variable_get('og_audience_checkboxes_' . $node->type, TRUE) && count($gids);
 
   // determine value of audience multi-select
   if (count($options) == 1 && $required) {
