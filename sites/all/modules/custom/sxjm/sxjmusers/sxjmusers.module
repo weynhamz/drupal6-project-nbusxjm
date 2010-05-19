@@ -501,18 +501,6 @@ function sxjmusers_role_perms_grant($role,$perms) {
   db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $role_id, implode(', ',$perms_old));
 }
 
-function sxjmusers_title_insert($title) {
-  if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title} WHERE name = '%s'", $title))) {
-    db_query("INSERT INTO {sxjmusers_title} (name) VALUES ('%s')", $title);
-  }
-}
-
-function sxjmusers_title_delete($title) {
-  $title_id = sxjmusers_get_title_id($title);
-  db_query('DELETE FROM {sxjmusers_title} WHERE tid = %d', $title_id);
-  db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
-}
-
 /**
  * Add given titles for a specific user.
  *
@@ -530,16 +518,35 @@ function sxjmusers_title_add($uid,$titles) {
   }
 }
 
+/**
+ * Delete given titles for a specific user.
+ *
+ * @param array $titles
+ *  array of titles
+ * @param int $uid
+ *  user uid
+ */
+function sxjmusers_title_delete($uid,$titles) {
+  db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d", $uid);
+  foreach($titles as $title) {
+    db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d AND tid = %d", $uid,$title);
+  }
+}
+
 function sxjmusers_title_operate($op,$titles) {
   switch($op){
     case 'create':
       foreach($titles as $title) {
-        sxjmusers_title_insert($title);
+        if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title} WHERE name = '%s'", $title))) {
+          db_query("INSERT INTO {sxjmusers_title} (name) VALUES ('%s')", $title);
+        }
       }
       break;
     case 'delete':
       foreach($titles as $title) {
-        sxjmusers_title_delete($title);
+        $title_id = sxjmusers_get_title_id($title);
+        db_query('DELETE FROM {sxjmusers_title} WHERE tid = %d', $title_id);
+        db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
       }
       break;
   }
