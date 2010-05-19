@@ -498,7 +498,8 @@ function sxjmlegal_get_conditions($tid = NULL) {
   } else {
     $conditions = db_fetch_array(db_query("SELECT * FROM {sxjmlegal_conditions} WHERE tid = %d",$tid));
   }
-  $conditions['extras'] = unserialize($conditions['extras']);
+  $extras = unserialize($conditions['extras']);
+  if(!empty($extras)) $conditions['extras'] = $extras;
   return $conditions;
 }
 

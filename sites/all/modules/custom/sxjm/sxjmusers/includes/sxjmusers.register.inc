@@ -33,7 +33,8 @@ function sxjmusers_register($form_state) {
   $admin = user_access('administer users');
   $current_step = $form_state['storage']['current_step'];
   if (!isset($current_step)) {
-    if ($admin) {
+    $conditions = sxjmlegal_get_conditions();
+    if ($admin || empty($conditions)) {
       $current_step = $form_state['storage']['current_step'] = 2;
     } else {
       if(!variable_get('sxjmusers_reg_status',0)) {
