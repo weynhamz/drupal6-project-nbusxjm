@@ -515,14 +515,14 @@ function sxjmusers_title_operate($op,$titles) {
   }
 }
 
-function sxjmusers_title_roles_grant($new,$title) {
+function sxjmusers_title_roles_grant($title,$roles) {
   $title_id = sxjmusers_get_title_id($title);
-  $roles = db_result(db_query("SELECT roles FROM {sxjmusers_title} WHERE tid = %d",$title_id));
-  $roles = explode(', ',$roles);
-  $new_1 = array_intersect($roles,$new);
-  $new_2 = array_diff($new,$new_1);
-  $roles = array_merge($new_2,$roles);
-  db_query("UPDATE {sxjmusers_title} SET `roles` = '%s' WHERE `tid` = %d", implode(', ',$roles),$title_id);
+  $roles_old = db_result(db_query("SELECT roles FROM {sxjmusers_title} WHERE tid = %d",$title_id));
+  $roles_old = explode(', ',$roles_old);
+  $roles_1 = array_intersect($roles_old,$roles);
+  $roles_2 = array_diff($roles,$roles_1);
+  $roles_old = array_merge($roles_2,$roles_old);
+  db_query("UPDATE {sxjmusers_title} SET `roles` = '%s' WHERE `tid` = %d", implode(', ',$roles_old),$title_id);
   sxjmusers_title_perms_rebuild();
 }
 
