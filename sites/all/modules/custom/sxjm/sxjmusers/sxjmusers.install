@@ -33,9 +33,9 @@ function sxjmusers_enable() {
   $roles = sxjmusers_role_define();
   sxjmusers_role_operate('create',$roles);
   //Grant default permissions to role
-  $role_permissions = sxjmusers_role_permissions();
-  foreach($role_permissions as $key => $value) {
-    sxjmusers_role_permissions_grant($value,$key);
+  $role_perms = sxjmusers_role_perms();
+  foreach($role_perms as $key => $value) {
+    sxjmusers_role_perms_grant($value,$key);
   }
   //Add titles
   $titles = sxjmusers_title_define();
@@ -219,7 +219,7 @@ function sxjmusers_role_define() {
   return array('会员浏览','会员管理');
 }
 
-function sxjmusers_role_permissions() {
+function sxjmusers_role_perms() {
   $return = array(
     '会员浏览' => array('access user profiles','查看数学建模用户'),
     '会员管理' => array('administer users','管理数学建模用户'),

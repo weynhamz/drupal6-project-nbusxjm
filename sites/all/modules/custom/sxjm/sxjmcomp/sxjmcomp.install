@@ -28,9 +28,9 @@ function sxjmcomp_enable() {
   $roles = sxjmcomp_role_define();
   sxjmusers_role_operate('create',$roles);
   //Grant default permissions to role
-  $role_permissions = sxjmcomp_role_permissions();
-  foreach($role_permissions as $key => $value) {
-    sxjmusers_role_permissions_grant($value,$key);
+  $role_perms = sxjmcomp_role_perms();
+  foreach($role_perms as $key => $value) {
+    sxjmusers_role_perms_grant($value,$key);
   }
   //Add titles
   $titles = sxjmusers_title_define();
@@ -55,7 +55,7 @@ function sxjmcomp_role_define() {
   return array('竞赛参与','竞赛管理');
 }
 
-function sxjmcomp_role_permissions() {
+function sxjmcomp_role_perms() {
   $return = array(
     '竞赛参与' => array('参加数学建模竞赛'),
     '竞赛管理' => array('管理数学建模模块','管理数学建模竞赛'),
