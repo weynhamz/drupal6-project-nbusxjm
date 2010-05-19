@@ -260,13 +260,15 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
     case 'categories':
       // 这里没有 $account,不需要检测
       // 设定数学建模用户个人页面的 category
-      return array(array(
-       'name' => '个人资料',
-       'title' => '个人资料',
-       'access callback' => 'sxjmusers_category_access',
-       'access arguments' => array(1, '个人资料'),
-       'weight' => 3,
-      ));
+      return array(
+        array(
+         'name' => '个人资料',
+         'title' => '个人资料',
+         'access callback' => 'sxjmusers_category_access',
+         'access arguments' => array(1, '个人资料'),
+         'weight' => 3,
+        )
+      );
     default:
       break;
   }
