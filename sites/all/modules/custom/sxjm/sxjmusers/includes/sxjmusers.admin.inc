@@ -232,7 +232,6 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
 
   $sql = 'SELECT su.uid' . $fields_sql . ' FROM {sxjmusers} su';
   $sql .= ' INNER JOIN {users} u ON su.uid = u.uid';
-  $sql .= ' INNER JOIN {users_roles} ur ON su.uid = ur.uid';
   $sql .= ' INNER JOIN {sxjmusers_title_users} stu ON su.uid = stu.uid';
   $sql .= ' INNER JOIN {sxjmusers_title} st ON stu.tid = st.tid';
 
