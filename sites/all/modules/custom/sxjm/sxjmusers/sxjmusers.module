@@ -477,15 +477,15 @@ function sxjmusers_role_operate($op,$roles){
   }
 }
 
-function sxjmusers_role_permissions_grant($new,$role) {
+function sxjmusers_role_perms_grant($role,$perms) {
   $role_id = sxjmusers_get_role_id($role);
-  $perms = db_result(db_query("SELECT perm FROM {permission} WHERE rid = %d",$role_id));
-  $perms = explode(', ',$perms);
-  $new_1 = array_intersect($perms,$new);
-  $new_2 = array_diff($new,$new_1);
-  $perms = array_merge($new_2,$perms);
+  $perms_old = db_result(db_query("SELECT perm FROM {permission} WHERE rid = %d",$role_id));
+  $perms_old = explode(', ',$perms_old);
+  $perms_1 = array_intersect($perms_old,$perms);
+  $perms_2 = array_diff($perms,$perms_1);
+  $perms_old = array_merge($perms_2,$perms_old);
   db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
-  db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $role_id, implode(', ',$perms));
+  db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $role_id, implode(', ',$perms_old));
 }
 
 function sxjmusers_title_insert($title) {
@@ -515,18 +515,18 @@ function sxjmusers_title_operate($op,$titles) {
   }
 }
 
-function sxjmusers_title_roles_grant($new,$title) {
+function sxjmusers_title_roles_grant($title,$roles) {
   $title_id = sxjmusers_get_title_id($title);
-  $roles = db_result(db_query("SELECT roles FROM {sxjmusers_title} WHERE tid = %d",$title_id));
-  $roles = explode(', ',$roles);
-  $new_1 = array_intersect($roles,$new);
-  $new_2 = array_diff($new,$new_1);
-  $roles = array_merge($new_2,$roles);
-  db_query("UPDATE {sxjmusers_title} SET `roles` = '%s' WHERE `tid` = %d", implode(', ',$roles),$title_id);
-  sxjmusers_title_permissions_rebuild();
+  $roles_old = db_result(db_query("SELECT roles FROM {sxjmusers_title} WHERE tid = %d",$title_id));
+  $roles_old = explode(', ',$roles_old);
+  $roles_1 = array_intersect($roles_old,$roles);
+  $roles_2 = array_diff($roles,$roles_1);
+  $roles_old = array_merge($roles_2,$roles_old);
+  db_query("UPDATE {sxjmusers_title} SET `roles` = '%s' WHERE `tid` = %d", implode(', ',$roles_old),$title_id);
+  sxjmusers_title_perms_rebuild();
 }
 
-function sxjmusers_title_permissions_rebuild() {
+function sxjmusers_title_perms_rebuild() {
   $titles = db_query('SELECT tid,roles FROM {sxjmusers_title}');
 
   $titles_roles = array();
