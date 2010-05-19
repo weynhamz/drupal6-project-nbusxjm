@@ -93,11 +93,11 @@ function sxjm_field_import($module) {
   $fields = sxjm_field_default_fields($module);
 
   foreach ($fields as $name => $field) {
-    $form_state['values']['type_name'] = $name;
-    $form_state['values']['macro'] = '$content = ' . var_export($field, TRUE) . ';';
+    $field_form_state['values']['type_name'] = $name;
+    $field_form_state['values']['macro'] = '$content = ' . var_export($field, TRUE) . ';';
 
     // Form provided by content_copy.module
-    drupal_execute('content_copy_import_form', $form_state);
+    drupal_execute('content_copy_import_form', $field_form_state);
   }
 
   content_clear_type_cache();
