@@ -445,19 +445,6 @@ function sxjmusers_get_basetitle_from_uid($uid) {
   }
 }
 
-function sxjmusers_role_insert($role) {
-  if (!db_result(db_query("SELECT COUNT(*) FROM {role} WHERE name = '%s'", $role))) {
-    db_query("INSERT INTO {role} (name) VALUES ('%s')", $role);
-  }
-}
-
-function sxjmusers_role_delete($role) {
-  $role_id = sxjmusers_get_role_id($role);
-  db_query('DELETE FROM {role} WHERE rid = %d', $role_id);
-  db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
-  db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
-}
-
 function sxjmusers_role_add($uid,$roles) {
   foreach ($roles as $role) {
     $role_id = sxjmusers_get_role_id($role);
@@ -467,16 +454,37 @@ function sxjmusers_role_add($uid,$roles) {
   }
 }
 
+/**
+ * Delete given roles of a specific user.
+ *
+ * @param int $uid
+ *  user uid
+ * @param array $roles
+ *  array of roles to be deleted
+ */
+function sxjmusers_role_delete($uid,$roles) {
+  $roles = array_filter($roles);
+  foreach ($roles as $role) {
+    $role_id = sxjmusers_get_role_id($role);
+    db_query("DELETE FROM {users_roles} WHERE uid = %d AND rid = %d", $uid,$role_id);
+  }
+}
+
 function sxjmusers_role_operate($op,$roles){
   switch($op){
     case 'create':
       foreach($roles as $role) {
-        sxjmusers_role_insert($role);
+        if (!db_result(db_query("SELECT COUNT(*) FROM {role} WHERE name = '%s'", $role))) {
+          db_query("INSERT INTO {role} (name) VALUES ('%s')", $role);
+        }
       }
       break;
     case 'delete':
       foreach($roles as $role) {
-        sxjmusers_role_delete($role);
+        $role_id = sxjmusers_get_role_id($role);
+        db_query('DELETE FROM {role} WHERE rid = %d', $role_id);
+        db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
+        db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
       }
       break;
   }
