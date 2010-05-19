@@ -126,9 +126,7 @@ function sxjmusers_title_save(&$edit, &$account, $category) {
   //radio 表单，只有一项
   //这里暂不对用户添加系统用户角色，只是赋予一定的数模用户身份，当
   //用户通过审核后，再赋予系统用户角色
-  $title = $edit['title'];
-  $title = array($title);
-  sxjmusers_title_users_save($title,$edit['uid']);
+  sxjmusers_title_users_save(array($edit['title']),$edit['uid']);
 }
 
 function sxjmusers_title_validate($form,&$form_state) {
