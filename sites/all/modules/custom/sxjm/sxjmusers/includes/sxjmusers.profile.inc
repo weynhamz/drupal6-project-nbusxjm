@@ -131,8 +131,9 @@ function sxjmusers_title_save(&$edit, &$account, $category) {
 
 function sxjmusers_title_validate($form,&$form_state) {
   //radio 表单，只有一项
+  $title = $form_state['values']['title'];
   $titles = sxjmusers_titles();
-  if (!array_key_exists($form_state['values']['title'],$titles)) {
+  if (!array_key_exists($title,$titles)) {
     form_set_error('role','不会是恶意攻击吧。。');
   }
   $form_state['redirect'] = 'user/register';
