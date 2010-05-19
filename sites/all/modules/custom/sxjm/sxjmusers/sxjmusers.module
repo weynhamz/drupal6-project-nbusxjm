@@ -594,6 +594,23 @@ function sxjmusers_titles() {
 }
 
 /**
+ * Get titles for a specific user
+ *
+ * @param init $uid
+ *  user uid
+ * @return array
+ *  array of titles
+ */
+function sxjmusers_get_titles($uid) {
+  $return = array();
+  $dbresult = db_query("SELECT stu.tid, st.name FROM {sxjmusers_title_users} stu INNER JOIN {sxjmusers_title} st ON stu.tid = st.tid WHERE stu.uid = %d",$uid);
+  while ($result = db_fetch_object($dbresult)) {
+    $return[$result->tid] = $result->name;
+  }
+  return $return;
+}
+
+/**
  *
  * @param array $title
  * @param unknown_type $uid
