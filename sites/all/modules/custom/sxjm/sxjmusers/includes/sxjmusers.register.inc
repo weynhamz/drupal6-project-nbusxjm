@@ -193,13 +193,13 @@ function sxjmusers_register_rebuild ($form, &$form_state) {
 
 
 function sxjmusers_register_submit($form, &$form_state) {
+  $current_step = $form_state['storage']['current_step'];
+
   if ($form_state['clicked_button']['#id'] == 'edit-next') {
 
     if (!isset($form_state['storage']['current_step'])) {
       $form_state['storage']['current_step'] = 1;
     }
-
-    $current_step = $form_state['storage']['current_step'];
 
     if ($current_step == sxjmusers_REG_STEP_ROLE && isset($form_state['storage']['step'][sxjmusers_REG_STEP_ROLE]) && isset($form_state['storage']['step'][sxjmusers_REG_STEP_REALINFO]) && $form_state['storage']['step'][sxjmusers_REG_STEP_ROLE]['values']['role'] != $form_state['values']['role']) {
       unset($form_state['storage']['step'][sxjmusers_REG_STEP_REALINFO]);
