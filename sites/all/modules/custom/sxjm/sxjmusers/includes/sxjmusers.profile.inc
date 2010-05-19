@@ -139,13 +139,13 @@ function sxjmusers_title_validate($form,&$form_state) {
   $form_state['redirect'] = 'user/register';
 }
 
-function sxjmusers_realinfo ($values = NULL,$role = NULL) {
+function sxjmusers_realinfo ($values = NULL,$title = NULL) {
 
   jquery_ui_add(array('ui.datepicker','i18n/ui.datepicker-zh-CN'));
   drupal_add_js(array('sxjmusers' => array('path' => drupal_get_path('module', 'sxjmusers'))),'setting');
   drupal_add_js(drupal_get_path('module', 'sxjmusers') . '/scripts/sxjmusers.datepicker.js');
 
-  $fields = sxjmusers_fields($role);
+  $fields = sxjmusers_fields($title);
   $form['realinfo'] = array(
     '#type' => 'fieldset',
     '#title' => t('个人资料'),

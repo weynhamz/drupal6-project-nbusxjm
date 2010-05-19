@@ -391,17 +391,17 @@ function sxjmusers_field_query_build() {
  *  field query sql
  */
 function sxjmusers_status_query_build() {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $student_role_id = sxjmusers_get_role_id('数模会员');
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
 
   $filters = sxjmusers_options();
 
   $where = $args = array();
 
-  $sxjmusers_filter = isset($_SESSION['sxjmusers_status'])?$_SESSION['sxjmusers_status']:array('role'=>array($teacher_role_id,$student_role_id));
+  $sxjmusers_filter = isset($_SESSION['sxjmusers_status'])?$_SESSION['sxjmusers_status']:array('title'=>array($teacher_title_id,$student_title_id));
 
   //在没有使用角色过滤时提供默认的过滤设置
-  if (empty($sxjmusers_filter['role'])) $sxjmusers_filter['role'] = array($teacher_role_id,$student_role_id);
+  if (empty($sxjmusers_filter['title'])) $sxjmusers_filter['title'] = array($teacher_title_id,$student_title_id);
 
   foreach ( $sxjmusers_filter as $key => $filter) {
     $filter_where = array();
@@ -472,9 +472,9 @@ function sxjmusers_search_query_build() {
  * @return array
  *  sxjmusers fields define array.
  */
-function sxjmusers_fields($role=NULL) {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $is_teacher = $role==$teacher_role_id?1:0;
+function sxjmusers_fields($title=NULL) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $is_teacher = $title==$teacher_title_id?1:0;
 
   $field_session = &$_SESSION['sxjmusers_fields'];
 
