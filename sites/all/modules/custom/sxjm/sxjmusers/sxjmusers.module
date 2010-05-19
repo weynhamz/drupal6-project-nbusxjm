@@ -189,6 +189,13 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
           if(isset($result->$key)) $account->$key = $result->$key;
         }
       }
+      //加载数学建模用户身份
+      $account->titles = array();
+      $titles = sxjmusers_titles();
+      $dbresult = db_query("SELECT tid FROM {sxjmusers_title_users} WHERE `uid` = '%d'", $account->uid);
+      while ($result = db_fetch_object($dbresult)) {
+        $account->titles[] = $titles[$result->tid];
+      }
       break;
     case 'login':
       if(!is_sxjmusers($account->uid)) break;
