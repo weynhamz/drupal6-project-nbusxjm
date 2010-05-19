@@ -1067,7 +1067,7 @@ function og_group_form($node, $form_state) {
 
   // admin can always choose registration checkbox - get right default
   if (user_access('administer nodes')) {
-    $visibility = in_array($visibility, array(OG_REGISTRATION_NEVER, OG_REGISTRATION_CHOOSE_FALSE)) ? OG_REGISTRATION_CHOOSE_FALSE  : OG_REGISTRATION_CHOOSE_TRUE;
+    $visibility = in_array((int)$visibility, array(OG_REGISTRATION_NEVER, OG_REGISTRATION_CHOOSE_FALSE)) ? OG_REGISTRATION_CHOOSE_FALSE  : OG_REGISTRATION_CHOOSE_TRUE;
   }
 
   $default = FALSE;
@@ -1098,7 +1098,7 @@ function og_group_form($node, $form_state) {
 
   // override for admins - get right default
   if (user_access('administer nodes')) {
-    $visibility = in_array($visibility, array(OG_DIRECTORY_NEVER, OG_DIRECTORY_CHOOSE_FALSE)) ? OG_DIRECTORY_CHOOSE_FALSE  : OG_DIRECTORY_CHOOSE_TRUE;
+    $visibility = in_array((int)$visibility, array(OG_DIRECTORY_NEVER, OG_DIRECTORY_CHOOSE_FALSE)) ? OG_DIRECTORY_CHOOSE_FALSE  : OG_DIRECTORY_CHOOSE_TRUE;
   }
 
   $default = FALSE;
