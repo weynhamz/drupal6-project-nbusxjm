@@ -1,0 +1,136 @@
+<?php
+/**
+ * Implementation of hook_perm().
+ */
+function sxjm_perm() {
+  return array(
+    '管理数学建模模块',
+  );
+}
+
+function sxjm_menu() {
+  $items = array();
+  $items['news'] = array (
+    'menu_name' => 'sxjm',
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '最新动态',
+    'description' => '数学建模',
+    'page callback' => 'sxjm_main',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => -1,
+  );
+  $items['sxjm'] = array (
+    'menu_name' => 'sxjm',
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '管理后台',
+    'description' => '数学建模',
+    'page callback' => 'sxjm_main',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模模块'),
+    'weight' => 10,
+  );
+  return $items;
+}
+
+function sxjm_main () {
+  return '';
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function sxjm_form_alter(&$form, $form_state, $form_id) {
+  $form = sxjm_recurse($form);
+  return;
+}
+
+/**
+ * Recurse through a form array to find required checkboxes
+ */
+function sxjm_recurse($form_item) {
+  if (!is_array($form_item)) return;
+  while (list($key, $value) = each($form_item)) {
+    if (strpos($key, '#') === 0) {
+      if (isset($form_item['#type']) && $form_item['#type'] == 'checkbox' && isset($form_item['#required']) && $form_item['#required'] == TRUE) {
+        $form_item['#element_validate'] = array('sxjm_validation');
+        $form_item['#pre_render'][] = 'sxjm_add_required_symbol';
+        return $form_item;
+      }
+    }
+    else {
+      $form_item[$key] = sxjm_recurse($value, $key);
+    }
+  }
+  return $form_item;
+}
+
+/**
+ * validate a required checkbox
+ */
+function sxjm_validation($element) {
+  if (empty($element['#value'])) form_error($element, t('!title 选项没有被选择', array('!title' => filter_xss_admin(($element['#title'])))));
+  return;
+}
+
+/**
+ * add required symbol here in this pre_render function so it doresn't
+ * display on error messages
+ */
+function sxjm_add_required_symbol($form) {
+  $form['#title'] .= ' <span class="form-required" title="' . t('如果您要完成表单的话，这个选项是必须选择的。') . '">*</span>';
+  return $form;
+}
+
+function sxjm_field_import($module) {
+  //Assume that cck module exists.
+  require_once './' . drupal_get_path('module', 'content')  . '/modules/content_copy/content_copy.module';
+
+  node_types_rebuild();
+
+  $fields = sxjm_field_default_fields($module);
+
+  foreach ($fields as $name => $field) {
+    $field_form_state['values']['type_name'] = $name;
+    $field_form_state['values']['macro'] = '$content = ' . var_export($field, TRUE) . ';';
+
+    // Form provided by content_copy.module
+    drupal_execute('content_copy_import_form', $field_form_state);
+  }
+
+  content_clear_type_cache();
+}
+
+function sxjm_field_remove($module) {
+  require_once './' . drupal_get_path('module', 'node')  . '/content_types.inc';
+
+  $fields = sxjm_field_default_fields($module);
+
+  foreach ($fields as $name => $field) {
+    $form_state['values'] = array (
+      'op' => 'Delete',
+      'type' => $field['type']['type'],
+      'name' => $field['type']['name'],
+      'confirm' => 1,
+    );
+    drupal_execute('node_type_delete_confirm',$form_state,(object)$node_types[$value]);
+  }
+
+  node_types_rebuild();
+
+  content_clear_type_cache();
+}
+
+function sxjm_field_default_fields($module) {
+  $files = file_scan_directory(drupal_get_path('module', $module). '/_fields', '.field');
+  foreach ($files as $absolute => $file) {
+    require $absolute;
+    if (isset($content)) {
+      $fields[$file->name] = $content;
+    }
+    unset($content);
+  }
+  return $fields;
+}

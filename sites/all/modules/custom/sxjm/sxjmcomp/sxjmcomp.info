@@ -1,0 +1,20 @@
+; $Id$
+core = 6.x
+name = Sxjm Competition
+package = sxjm
+description = Sxjm competition
+dependencies[] = sxjm
+dependencies[] = sxjmusers
+dependencies[] = og
+dependencies[] = og_views
+dependencies[] = views
+dependencies[] = content
+dependencies[] = content_permissions
+dependencies[] = text
+dependencies[] = number
+dependencies[] = filefield
+dependencies[] = filefield_paths
+dependencies[] = nodereference
+dependencies[] = nodereference_views
+dependencies[] = pathauto
+dependencies[] = subpath_alias

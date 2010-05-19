@@ -1,0 +1,87 @@
+<?php
+/**
+ * Implementation of hook_install().
+ */
+function sxjmcomp_install() {
+  //Views module's weight is 10,we need a higher weight for views integration to work.
+  db_query("UPDATE {system} SET weight = 11 WHERE name = 'sxjmcomp'");
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function sxjmcomp_uninstall() {
+  //删除模块定义的CCK字段
+  sxjm_field_remove('sxjmcomp');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function sxjmcomp_enable() {
+  //导入模块定义的CCK字段
+  //必须在enable阶段，不能在install阶段
+  //install阶段module尚未开启，hook_node_info不起作用，
+  //自定义的node_type还不存在，会出现导入失败。
+  sxjm_field_import('sxjmcomp');
+  //Add roles
+  $roles = sxjmcomp_role_define();
+  sxjmusers_role_operate('create',$roles);
+  //Grant default permissions to role
+  $role_permissions = sxjmcomp_role_permissions();
+  foreach($role_permissions as $key => $value) {
+    sxjmusers_role_permissions_grant($value,$key);
+  }
+  //Add titles
+  $titles = sxjmusers_title_define();
+  sxjmusers_title_operate('create',$titles);
+  //Grant title based permissions
+  $title_roles = sxjmcomp_title_roles();
+  foreach($title_roles as $title => $roles) {
+    sxjmusers_title_roles_grant($roles,$title);
+  }
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function sxjmcomp_disable() {
+  //Delete roles
+  $roles = sxjmcomp_role_define();
+  sxjmusers_role_operate('delete',$roles);
+}
+
+function sxjmcomp_role_define() {
+  return array('竞赛参与','竞赛管理');
+}
+
+function sxjmcomp_role_permissions() {
+  $return = array(
+    '竞赛参与' => array('参加数学建模竞赛'),
+    '竞赛管理' => array('管理数学建模模块','管理数学建模竞赛'),
+  );
+
+  $permissions_0 = array('field_comp_state','field_comp_ques','field_comp_team','field_ques_paper','field_ques_comp','field_team_state','field_team_comp','field_team_score');
+  $permissions_1 = array('field_comp_alter','field_comp_award','field_comp_rules','field_comp_info','field_comp_name','field_ques_file  ','field_ques_info','field_ques_mark');
+  $permissions_2 = array('field_team_info','field_paper_file','field_paper_info','field_paper_ques');
+
+  foreach($permissions_1 as $permission) {
+    $return['竞赛管理'][] = 'edit ' . $permission;
+    $return['竞赛管理'][] = 'view ' . $permission;
+  }
+
+  foreach($permissions_2 as $permission) {
+    $return['竞赛参与'][] = 'edit ' . $permission;
+    $return['竞赛参与'][] = 'view ' . $permission;
+  }
+
+  return $return;
+}
+
+function sxjmcomp_title_roles() {
+  return array(
+    '数模会员' => array('竞赛参与'),
+    '协会会长' => array('竞赛管理'),
+    '指导老师' => array('竞赛管理'),
+  );
+}

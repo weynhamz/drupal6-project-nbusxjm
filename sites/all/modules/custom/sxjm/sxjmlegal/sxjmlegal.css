@@ -1,0 +1,43 @@
+.legal-terms {
+  height: 20em;
+  overflow: scroll;
+}
+
+#legal-view {
+
+}
+
+#legal-view-no strong {
+  color: #FF0000;
+}
+
+#legal-view-current {
+  margin: 0em 0em 1em 0em;
+}
+
+#legal-view-current h3 {
+  margin: 0em 0em 0.5em 0em;
+}
+
+#legal-view-current ul {
+  margin: 0em 0em 0.5em 4em;
+}
+
+#legal-view-current ul li {
+  margin: 0em 0em 1em 0em;
+}
+
+#legal-form div.resizable-textarea {
+  width: 99.4%;
+}
+
+#legal-form div.resizable-textarea textarea {
+  background: #fbfbfb;
+  height: 360px;
+}
+
+#legal-preview {
+  padding: 0.5em 1em;
+  border: 1px solid #DDDDDD;
+  background: #FFFAC7;
+}

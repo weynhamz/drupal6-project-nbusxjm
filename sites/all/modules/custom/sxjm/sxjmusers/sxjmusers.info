@@ -1,0 +1,7 @@
+; $Id$
+core = 6.x
+name = Sxjm Users
+package = sxjm
+description = Sxjm users.
+dependencies[] = sxjm
+dependencies[] = jquery_ui

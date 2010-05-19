@@ -1,0 +1,213 @@
+<?php
+  $content['fields']  = array (
+    0 =>
+    array (
+      'label' => '指导老师',
+      'field_name' => 'field_teacher',
+      'type' => 'userreference',
+      'widget_type' => 'userreference_buttons',
+      'change' => 'Change basic information',
+      'weight' => '5',
+      'autocomplete_match' => 'contains',
+      'size' => 60,
+      'reverse_link' => 0,
+      'description' => '',
+      'default_value' =>
+      array (
+        0 =>
+        array (
+          'uid' => '',
+        ),
+      ),
+      'default_value_php' => '',
+      'default_value_widget' => NULL,
+      'group' => false,
+      'required' => 1,
+      'multiple' => '0',
+      'referenceable_roles' =>
+      array (
+        3 => 3,
+        2 => 0,
+        4 => 0,
+      ),
+      'referenceable_status' => '',
+      'advanced_view' => '--',
+      'advanced_view_args' => '',
+      'op' => 'Save field settings',
+      'module' => 'userreference',
+      'widget_module' => 'userreference',
+      'columns' =>
+      array (
+        'uid' =>
+        array (
+          'type' => 'int',
+          'unsigned' => true,
+          'not null' => false,
+          'index' => true,
+        ),
+      ),
+      'display_settings' =>
+      array (
+        'label' =>
+        array (
+          'format' => 'above',
+          'exclude' => 0,
+        ),
+        5 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'teaser' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'full' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        4 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        2 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        3 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'token' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    1 =>
+    array (
+      'label' => '基地机房',
+      'field_name' => 'field_room',
+      'type' => 'nodereference',
+      'widget_type' => 'nodereference_buttons',
+      'change' => 'Change basic information',
+      'weight' => '6',
+      'autocomplete_match' => 'contains',
+      'size' => 60,
+      'description' => '',
+      'default_value' =>
+      array (
+        0 =>
+        array (
+          'nid' => '',
+        ),
+      ),
+      'default_value_php' => '',
+      'default_value_widget' =>
+      array (
+        'field_room' =>
+        array (
+          0 =>
+          array (
+            'nid' => '',
+          ),
+          'nid' =>
+          array (
+            'nid' => '',
+          ),
+        ),
+      ),
+      'group' => false,
+      'required' => 0,
+      'multiple' => '0',
+      'referenceable_types' =>
+      array (
+        'blog' => 0,
+        'book' => 0,
+        'forum' => 0,
+        'page' => 0,
+        'poll' => 0,
+        'story' => 0,
+        'unioninfo' => 0,
+        'department' => 0,
+        'baseinfo' => 0,
+        'document' => 0,
+      ),
+      'advanced_view' => '--',
+      'advanced_view_args' => '',
+      'op' => 'Save field settings',
+      'module' => 'nodereference',
+      'widget_module' => 'nodereference',
+      'columns' =>
+      array (
+        'nid' =>
+        array (
+          'type' => 'int',
+          'unsigned' => true,
+          'not null' => false,
+          'index' => true,
+        ),
+      ),
+      'display_settings' =>
+      array (
+        'label' =>
+        array (
+          'format' => 'above',
+          'exclude' => 0,
+        ),
+        5 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'teaser' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'full' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        4 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        2 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        3 =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'token' =>
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+  );
+  $content['extra']  = array (
+    'title' => '-5',
+    'body_field' => '-4',
+    'revision_information' => '0',
+    'author' => '1',
+    'options' => '-1',
+    'comment_settings' => '3',
+    'menu' => '-2',
+    'book' => '-3',
+    'path' => '2',
+    'attachments' => '4',
+  );

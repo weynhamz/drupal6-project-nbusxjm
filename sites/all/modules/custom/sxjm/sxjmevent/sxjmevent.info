@@ -1,0 +1,7 @@
+; $Id$
+core = 6.x
+name = Sxjm Event
+package = sxjm
+description = Sxjm event.
+dependencies[] = sxjm
+dependencies[] = sxjmusers

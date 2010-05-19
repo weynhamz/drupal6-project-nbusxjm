@@ -1,0 +1,7 @@
+; $Id$
+core = 6.x
+name = Sxjm Base
+package = sxjm
+description = Sxjm base.
+dependencies[] = sxjm
+dependencies[] = sxjmusers

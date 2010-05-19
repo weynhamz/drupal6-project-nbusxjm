@@ -1,0 +1,779 @@
+<?php
+// $Id: sxjmlegal.module$
+/**
+ * Implementation of hook_perm().
+ */
+function sxjmlegal_perm() {
+  return array(
+    '管理用户使用协议',
+  );
+}
+/**
+ * Implementation of hook_menu().
+ */
+function sxjmlegal_menu() {
+  $items = array();
+  $items['sxjm/legal'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '用户协议',
+    'description' => '设定会员的用户协议和附加条款',
+    'page callback' => 'sxjmlegal_view',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理用户使用协议'),
+    'weight' => 0,
+  );
+  $items['sxjm/legal/view'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '查看',
+    'description' => '当前使用的用户协议和附加条款',
+    'weight' => 0,
+  );
+  $items['sxjm/legal/view/%'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '用户协议',
+    'description' => '设定会员的用户协议和附加条款',
+    'page callback' => 'sxjmlegal_view',
+    'page arguments' => array(2),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理用户使用协议'),
+  );
+  $items['sxjm/legal/edit'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '编辑',
+    'description' => '编辑用户协议和附加条款',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmlegal_edit'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理用户使用协议'),
+    'weight' => 1,
+  );
+  $items['sxjm/legal/history'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '历史',
+    'description' => '用户协议和附加条款修订历史',
+    'page callback' => 'sxjmlegal_history',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理用户使用协议'),
+    'weight' => 2,
+  );
+  $items['sxjm/legal/settings'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '设置',
+    'description' => '设置协议和附加条款修订',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmlegal_settings'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理用户使用协议'),
+    'weight' => 3,
+  );
+
+  $items['legal'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '用户协议',
+    'description' => '用户协议和附加条款',
+    'page callback' => 'sxjmlegal_page',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+  );
+  $items['legal/%'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '用户协议',
+    'description' => '用户协议和附加条款',
+    'page callback' => 'sxjmlegal_page',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'access arguments' => array(''),
+  );
+  $items['legal/accept/%/%/%'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '用户协议和附加条款',
+    'description' => '用户协议和附加条款',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmlegal_login', 2, 3, 4),
+    'access callback' => TRUE,
+    'access arguments' => array(),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function sxjmlegal_user($op, &$edit, &$account, $category = FALSE) {
+  global $user;
+  switch ($op) {
+    case 'login':
+      $conditions = sxjmlegal_get_conditions();
+      if (empty($conditions['conditions'])) break;
+      $accepted = sxjmlegal_check_accept($user->uid, $conditions['tid']);
+      if ($accepted == TRUE || $user->uid == 1) break;
+      $uid = $user->uid;
+      // Destroy the current session:
+      session_destroy();
+      module_invoke_all('user', 'logout', NULL, $user);
+      $user = user_load(array('uid' => 0));
+      // We have to use $GLOBALS to unset a global variable:
+      unset($_REQUEST['destination']);
+      $signatory = db_fetch_object(db_query('SELECT * FROM {users} WHERE uid = %d LIMIT 1', $uid));
+      drupal_goto('legal/accept/' . $signatory->uid . '/' . md5($signatory->name . $signatory->password . $signatory->login) . '/' . time());
+      break;
+    case 'form':
+      $conditions = sxjmlegal_get_conditions();
+      if (empty($conditions['conditions'])) break;
+      if ($category == 'account') {
+         $form = sxjmlegal_display($conditions);
+         $form['sxjmlegal']['changes'] = sxjmlegal_changes($uid);
+        //检查最新的“用户协议和附加条款”是否被接受
+        $accepted = sxjmlegal_check_accept($account->uid, $conditions['tid']);
+        if ($accepted == TRUE) {
+          $form['sxjmlegal']['accept']['#value'] = 1;
+          if (!empty($conditions['extras'])) {
+            while (list ($key, $label) = each ($conditions['extras'])) {
+              if (!empty($label)) {
+                $form['sxjmlegal']['extras'][$key]['#value'] = 1;
+              }
+            }
+          }
+        }
+        // 如果当前用户不是账户的主人，比如管理员修改账户的情况,则不须强制
+        if ($account->uid != $user->uid) {
+          $form['sxjmlegal']['accept']['#required'] = FALSE;
+          if (!empty($conditions['extras'])) {
+            reset($conditions['extras']);
+            while (list ($key, $label) = each ($conditions['extras'])) {
+              if (!empty($label)) {
+                $form['sxjmlegal']['extras'][$key]['#required'] = FALSE;
+              }
+            }
+          }
+        }
+        $form = theme('sxjmlegal_display', $form);
+        return $form;
+      }
+      break;
+    case 'update':
+      $conditions = sxjmlegal_get_conditions();
+      if (empty($conditions['conditions'])) break;
+      if ($category == 'account') {
+        unset($edit['accept'],$edit['conditions']);
+        foreach ($conditions['extras'] as $key => $label) unset($edit[$key]);
+        if ($account->uid != $user->uid) break;
+        // 不重复保存数据，如果用户已经接受“用户协议和附加条款”
+        $accepted = sxjmlegal_check_accept($account->uid, $conditions['tid']);
+        if ($accepted == TRUE) break;
+        sxjmlegal_save_accept($account->uid, $conditions['tid']);
+      }
+      _sxjmlegal_remove_additional_fields($edit);
+      break;
+    case 'register':
+      return sxjmlegal_register_form($edit);
+    case 'insert':
+      sxjmlegal_register_insert($edit, $account);
+      break;
+  }
+  return;
+}
+
+/*
+ * 显示“用户协议和附加条款”页面
+ */
+function sxjmlegal_page($tid = NULL) {
+  if(empty($tid)) {
+    $conditions = sxjmlegal_get_conditions();
+  }
+  else {
+    $conditions = sxjmlegal_get_conditions($tid);
+  }
+  return theme('sxjmlegal_page',$conditions);
+}
+
+/*
+ * 显示“用户协议和附加条款”表单
+ */
+function sxjmlegal_view($tid = NULL) {
+  if(empty($tid)) {
+    $conditions = sxjmlegal_get_conditions();
+  }
+  else {
+    $conditions = sxjmlegal_get_conditions($tid);
+  }
+  return theme('sxjmlegal_view',$conditions);
+}
+
+/*
+ * 编辑“用户协议和附加条款”
+ */
+function sxjmlegal_edit($form_state) {
+  $form = array();
+
+  $conditions = sxjmlegal_get_conditions();
+
+  // preview the changes
+  if (isset($form_state['preview'])) {
+    // overide conditions array with updated values.
+    $conditions['conditions'] = $form_state['values']['conditions'];
+    $conditions['extras'] = $form_state['values']['extras'];
+
+    $form = sxjmlegal_form($form,$conditions);
+
+    for ($counter = 1; $counter <= count($form['sxjmlegal']['extras']); $counter++) {
+      // overide extra checkboxes requirement on preview
+      if (!empty($conditions['extras']['extras-' . $counter])) {
+        $form['sxjmlegal']['extras']['extras-' . $counter]['#required'] = FALSE;
+      }
+    }
+    // overide accept checbox requirement on preview
+    $form['sxjmlegal']['accept']['#required'] = FALSE;
+  }
+
+  $form['conditions'] = array(
+    '#type' => 'textarea',
+    '#title' => t('用户协议'),
+    '#default_value' => $conditions['conditions'],
+    '#description' => t('站点的“用户协议和附加条款”'),
+    '#required' => TRUE,
+  );
+
+  // 附加条款
+  $form['extras'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('附加条款'),
+    '#description' => t('每个条款将会以复选框的形式显示给用户'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#tree' => TRUE,
+  );
+  $extras_count = count($conditions['extras']);
+  if ($extras_count < 5) $extras_count = 5;
+  for ($counter = 1; $counter <= $extras_count; $counter++) {
+    $form['extras']['extras-' . $counter] = array(
+      '#type' => 'textfield',
+      '#title' => t('附加条款 ' . $counter ),
+      '#default_value' => $conditions['extras']['extras-' . $counter],
+    );
+  }
+
+  // 修订备注
+  $form['changes'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('修订备注'),
+    '#description' => t('陈述用户协议和附加条款针对上一个版本的修改原因，这将会在重新认可时显示给那些已经同意上一个版本的用户，每一行是列表的一项。'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['changes']['changes'] = array(
+    '#type' => 'textarea',
+    '#title' => t(''),
+  );
+
+  $form['preview'] = array(
+    '#type' => 'submit',
+    '#value' => t('预览'),
+  );
+  $form['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('保存'),
+  );
+  $form['cancle'] = array(
+    '#type' => 'submit',
+    '#value' => t('放弃'),
+  );
+
+  return $form;
+}
+
+function sxjmlegal_edit_validate($form, &$form_state) {
+  if ( empty($form_state['values']['conditions']) ) form_set_error('conditions', t('您必须输入“用户协议和附加条款”。'));
+  return;
+}
+
+function sxjmlegal_edit_submit($form, &$form_state) {
+  global $user;
+  if ($form_state['clicked_button']['#value'] == t('预览')) {
+    // 使用新的表单值重建表单并预览结果
+    $form_state['preview'] = TRUE;
+    $form_state['rebuild'] = TRUE;
+  } elseif($form_state['clicked_button']['#value'] == t('放弃')){
+    // 不重建表单，也不保存，直接重定向到原始表单
+    $form_state['rebuild'] = FALSE;
+  } else {
+    if ( variable_get('sxjmlegal_display', '0') !=  $form_state['values']['display'] ) {
+      variable_set('sxjmlegal_display', $form_state['values']['display']);
+      drupal_set_message(t('“用户协议和附加条款” 显示样式已更改。'));
+    }
+    if ( sxjmlegal_check_conditions($form_state['values']) ) {
+      db_query("INSERT INTO {sxjmlegal_conditions} (tid, conditions, date, extras, changes, moderater) VALUES (NULL, '%s', %d, '%s', '%s', %d)", $form_state['values']['conditions'], time(), serialize($form_state['values']['extras']), $form_state['values']['changes'],$user->uid);
+      drupal_set_message(t('“用户协议和附加条款” 已经保存。'));
+    } else {
+      drupal_set_message(t('“用户协议和附加条款” 没有改变。'));
+    }
+    cache_clear_all();
+  }
+  return;
+}
+
+/*
+ * “用户协议和附加条款”的修订历史
+ */
+function sxjmlegal_history() {
+  $result = db_query("SELECT tid FROM {sxjmlegal_conditions} ORDER BY tid ASC");
+  while($tids = db_fetch_array($result)) {
+    $tid = $tids['tid'];
+    $conditions[$tid] = sxjmlegal_get_conditions($tid);
+  }
+  return theme('sxjmlegal_history',$conditions);
+}
+
+/*
+ *“用户协议和附加条款”相关设置
+ */
+function sxjmlegal_settings($form_state) {
+  // 显示样式
+  $form['display'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('显示样式'),
+    '#description' => t('设置“用户协议和附加条款”的显示方式。'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['display']['display'] = array(
+    '#type' => 'radios',
+    '#default_value' => variable_get('sxjmlegal_display', '0'),
+    '#options' => array(t('文本框'), t('网页文本'), t('网页链接')),
+    '#required' => TRUE,
+  );
+
+  $form['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('保存'),
+  );
+
+  return $form;
+}
+
+function sxjmlegal_settings_validate($form, &$form_state) {
+  return;
+}
+
+function sxjmlegal_settings_submit($form, &$form_state) {
+  if ( variable_get('sxjmlegal_display', '0') !=  $form_state['values']['display'] ) {
+    variable_set('sxjmlegal_display', $form_state['values']['display']);
+    drupal_set_message(t('“用户协议和附加条款” 显示样式已更改。'));
+  }
+  return;
+}
+
+
+/*
+ * 已注册的用户在登录是要求接受“用户协议和附加条款”
+ */
+function sxjmlegal_login($constructor, $uid, $id_hash = NULL, $hash_time = NULL) {
+  $conditions = sxjmlegal_get_conditions();
+  $form = sxjmlegal_display($conditions);
+  $form['sxjmlegal']['changes'] = sxjmlegal_changes($uid);
+  $form['uid'] = array(
+    '#type' => 'value',
+    '#value' => $uid,
+  );
+  $form['id_hash'] = array(
+    '#type' => 'value',
+    '#value' => $id_hash,
+  );
+  $form['hash_time'] = array(
+    '#type' => 'value',
+    '#value' => $hash_time,
+  );
+  $form['tid'] = array(
+    '#type' => 'value',
+    '#value' => $conditions['tid'],
+  );
+  $form['save'] = array(
+    '#type' => 'submit',
+    '#value' => t('确认'),
+  );
+  return $form;
+}
+
+function sxjmlegal_login_validate($form, &$form_state) {
+  $account = db_fetch_object( db_query('SELECT * FROM {users} WHERE uid = %d LIMIT 1', $form_state['values']['uid']) );
+  $id_hash = md5($account->name . $account->password . $account->login);
+  if ($id_hash != $form_state['values']['id_hash'] || time() > $form_state['values']['hash_time'] + 3600) {
+    form_set_error('accept', t('用户账号无法通过认证.'));
+    drupal_goto();
+  }
+  return;
+}
+
+function sxjmlegal_login_submit($form, &$form_state) {
+  global $user;
+  $user = user_load(array('uid' => $form_state['values']['uid']));
+  sxjmlegal_save_accept($user->uid, $form_state['values']['tid']);
+  watchdog('sxjmlegal', '%name 接受“用户协议和附加条款”版本 %tid.', array('%name' => $user->name, '%tid' => $form_state['values']['tid']));
+  // Update the user table timestamp noting user has logged in.
+  db_query("UPDATE {users} SET login = '%d' WHERE uid = '%s'", time(), $user->uid);
+  // user has new permissions, so we clear their menu cache
+  cache_clear_all($user->uid, 'cache_menu', TRUE);
+  user_module_invoke('login', $edit, $user);
+  $form_state['redirect'] = 'user/'. $user->uid;
+  return;
+}
+
+/*
+ * 在注册页面显示“用户协议和附加条款”表单
+ */
+function sxjmlegal_register_form ($values) {
+  $admin = user_access('administer users');
+  $conditions = sxjmlegal_get_conditions();
+  if (empty($conditions['conditions'])) return;
+  $form_fields = sxjmlegal_display($conditions);
+  // 下列情况下禁用复选框
+  // 用户已经接受了最新的“用户协议和附加条款”，比如在个人的编辑页面
+  // 拥有“添加用户权限”的管理员，在 admin/user/user/create 页面添加用户的时候
+  // 这时只需要显示“用户协议和附加条款”区域做为提醒作用
+  if (!empty($user->uid)) {
+    $form_fields['sxjmlegal']['accept']['#attributes'] = array('disabled' => 'disabled');
+    $form_fields['sxjmlegal']['accept']['#required'] = FALSE;
+    reset($conditions['extras']);
+    while (list ($key, $label) = each ($conditions['extras'])) {
+      if (!empty($label)) {
+        $form_fields['sxjmlegal'][$key]['#attributes'] = array('disabled' => 'disabled');
+        $form_fields['sxjmlegal'][$key]['#required'] = FALSE;
+      }
+    }
+  } else {
+    $form_fields['sxjmlegal']['accept']['#default_value'] = $values['accept'];
+  }
+  $form = theme('sxjmlegal_display', $form_fields);
+  return $form;
+}
+
+/*
+ * 在注册页面确认“用户协议和附加条款”
+ */
+function sxjmlegal_register_insert (&$edit, &$account) {
+  global $user;
+  $conditions = sxjmlegal_get_conditions();
+  if (empty($conditions['conditions'])) return;
+  // 不保存数据，如果当前用户已经注册，比如管理员添加用户的情况
+  if (!empty($user->uid)) return;
+  sxjmlegal_save_accept($account->uid, $conditions['tid']);
+  _sxjmlegal_remove_additional_fields($edit);
+  return;
+}
+
+/*
+ * 获得“用户协议和附加条款”
+ */
+function sxjmlegal_get_accept($uid) {
+  return db_fetch_object(db_query("SELECT * FROM {sxjmlegal_accepted} WHERE uid = '%d' ORDER BY lid DESC LIMIT 1", $uid));
+}
+
+/*
+ * 保存“用户协议和附加条款”
+ */
+function sxjmlegal_save_accept($uid, $tid) {
+  return db_query("INSERT INTO {sxjmlegal_accepted} (lid, uid, tid, accepted) VALUES (NULL, '%d', '%d', '%d')", $uid, $tid, time());
+}
+
+/*
+ * 检查用户是否接受了最新的“用户协议和附加条款”
+ */
+function sxjmlegal_check_accept($uid, $tid) {
+  $sxjmlegal_account = sxjmlegal_get_accept($uid);
+  if ($sxjmlegal_account->tid == $tid)
+    return TRUE;
+  else
+    return FALSE;
+}
+
+/*
+ * 获得目前的“用户协议和附加条款”
+ */
+function sxjmlegal_get_conditions($tid = NULL) {
+  if(empty($tid)) {
+    $conditions = db_fetch_array(db_query("SELECT * FROM {sxjmlegal_conditions} ORDER BY tid DESC LIMIT 1"));
+  } else {
+    $conditions = db_fetch_array(db_query("SELECT * FROM {sxjmlegal_conditions} WHERE tid = %d",$tid));
+  }
+  $conditions['extras'] = unserialize($conditions['extras']);
+  return $conditions;
+}
+
+/*
+ * 检查“用户协议和附加条款”是否有改动
+ */
+function sxjmlegal_check_conditions($new) {
+  $old = sxjmlegal_get_conditions();
+  if ($old['conditions'] != $new['conditions']) return TRUE;
+  $count = count($new['extras']);
+  for ($counter = 1; $counter <= $count; $counter++) {
+    if ( $old['extras']['extras-' . $counter] != $new['extras']['extras-' . $counter] ) return TRUE;
+  }
+  return FALSE;
+}
+
+/*
+ * 预览“用户协议和附加条款”
+ */
+function sxjmlegal_form($form, $conditions) {
+  $accept_label = t('<strong>同意</strong> “用户协议和附加条款”');
+  switch (variable_get('sxjmlegal_display', '0')) {
+    case 1: // HTML
+      $form['sxjmlegal']['conditions'] = array(
+        '#value' => filter_xss_admin($conditions['conditions']),
+      );
+      break;
+    case 2: // Page Link
+      $form['sxjmlegal']['conditions'] = array(
+        '#value' => ' ',
+      );
+      $accept_label = t('<strong>同意</strong> !terms ', array('!terms' => l('“用户协议和附加条款”', 'legal',array ('attributes' => array('target'=>'_blank')))));
+      break;
+    default: // Scroll Box
+      $form['sxjmlegal']['conditions'] = array(
+        '#type' => 'textarea',
+        '#title' => t('用户协议和附加条款'),
+        '#value' => $conditions['conditions'],
+        '#default_value' => $conditions['conditions'],
+        '#rows' => 10,
+        '#weight' => 0,
+        '#attributes' => array('disabled' => 'disabled','id'=>'legal-condition'),
+      );
+  }
+  if (!empty($conditions['extras'])) {
+    while (list ($key, $label) = each ($conditions['extras'])) {
+      if (!empty($label)) {
+        $form['sxjmlegal']['extras'][$key] = array(
+          '#type' => 'checkbox',
+          '#title' => filter_xss_admin($label),
+          '#default_value' => 0,
+          '#weight' => 2,
+          '#required' => TRUE,
+          '#attributes' => array('id'=>$key,'name'=>$key),
+        );
+      } else {
+        unset($form['sxjmlegal']['extras'][$key]);
+      }
+    }
+  }
+  $form['sxjmlegal']['accept'] = array(
+    '#type' => 'checkbox',
+    '#title' => $accept_label,
+    '#default_value' => 0,
+    '#weight' => 50,
+    '#required' => TRUE,
+  );
+  return $form;
+}
+
+/*
+ * 显示“用户协议和附加条款”表单
+ */
+function sxjmlegal_display($conditions) {
+  $form = array();
+  $form['current_id'] = array(
+    '#type' => 'value',
+    '#value' => $conditions['tid'],
+  );
+  $form['current_date'] = array(
+    '#type' => 'value',
+    '#value' => $conditions['date'],
+  );
+  $form['sxjmlegal'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('用户协议和附加条款'),
+    '#weight' => 0,
+    '#attributes' => array('id'=>'legal-form'),
+  );
+
+  $form = sxjmlegal_form($form,$conditions);
+
+  $form['#theme'] = 'sxjmlegal_form';
+  return $form;
+}
+
+/*
+ * 获得自用户最后一次接受“用户协议和附加条款”后的所有更改
+ */
+function sxjmlegal_changes($uid) {
+  $last_accepted = sxjmlegal_get_accept($uid);
+  if (empty($last_accepted)) return;
+  $results = db_query("SELECT * FROM {sxjmlegal_conditions} WHERE tid > %d ORDER BY tid DESC", $last_accepted->tid);
+  if (empty($results)) return;
+  $item = array(
+    '#type' => 'fieldset',
+    '#title' => t('修改列表'),
+    '#description' => t('“用户协议和附加条款”自从您上次接受后的所有改变：'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#tree' => TRUE,
+    '#weight' => -5,
+  );
+  while ($conditions = db_fetch_object($results)) {
+    if (!empty($conditions->changes)) {
+      $changes = explode("\r\n", $conditions->changes);
+      foreach($changes as $change) {
+        $item['changes'] = array(
+          '#value' => filter_xss_admin($change),
+          '#weight' => 2,
+        );
+        $is_list = TRUE;
+      }
+    }
+  }
+  if (!$is_list) $item['changes'] = NULL;
+  return $item;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function sxjmlegal_theme() {
+  return array(
+    'sxjmlegal_view' => array('arguments' => array('conditions' => NULL)),
+    'sxjmlegal_page' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_form' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_edit' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_login' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_preview' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_display' => array('arguments' => array('form' => NULL)),
+    'sxjmlegal_history' => array('arguments' => array('conditions' => NULL)),
+  );
+}
+
+
+function theme_sxjmlegal_page($conditions) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  $output .= '<h3>用户协议：</h3>';
+  switch(variable_get('sxjmlegal_display', '0')) {
+    case 1: // HTML
+    case 2: // Page Link
+      $output .= filter_xss_admin($conditions['conditions']);
+      break;
+    default:
+      $paragrahs = explode("\r\n", $conditions['conditions']);
+      foreach($paragrahs as $paragrah) {
+        $output .= '<p>' . $paragrah . '</p>';
+      }
+      break;
+  }
+
+  $output .= '<h3>附加条款：</h3>';
+  $output .= '<ul>';
+  foreach($conditions['extras'] as $extra) {
+    if(!empty($extra)) {
+      $output .= '<li>' . $extra . '</li>';
+    }
+  }
+  $output .= '</ul>';
+  return '<div id="legal-page">' . $output . '</div>';
+}
+
+function theme_sxjmlegal_view ($conditions) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  $account = user_load($conditions['moderater']);
+  // 显示当前协议状态
+  if (empty($conditions['tid'])) {
+    $output .= '<div id="legal-view-no"><strong>' .t('您尚未设定任何“用户协议和附加条款”。') . '</strong></div>';
+  } else {
+    $output .= '<div id="legal-view-current">';
+    $output .= '<h3>' . t('当前版本') . '</h3>';
+    $output .= '<ul>';
+    $output .= '<li><strong>' . t('修订人：  ') . '</strong> ' . l($account->name,'user/' . $account->uid) . '</li>';
+    $output .= '<li><strong>' . t('版本序号：') . '</strong> ' . $conditions['tid'] . '</li>';
+    $output .= '<li><strong>' . t('最后修改：') . '</strong> ' . date("Y 年 m 月 d 日 h:i:s", $conditions['date']) . '</li>';
+    $output .= '</ul>';
+    $output .= '</div>';
+  }
+  $form = sxjmlegal_display($conditions);
+  $form = theme('sxjmlegal_display', $form);
+  $output .= drupal_render($form);
+
+  return '<div id="legal-view">' . $output . '</div>';
+}
+
+function theme_sxjmlegal_form($form) {
+  return '';
+}
+
+function theme_sxjmlegal_login($form) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  $form = theme('sxjmlegal_display', $form);
+  $output .= '<p>' . t('如果您要继续成为本站用户，需要阅读下面的“用户协议和附加条款”，并完成表单以确认您的认可。' ) . '</p>';
+  if ($form['changes']) {
+    foreach (element_children($form['changes']) as $key) {
+      $form['changes'][$key]['#prefix'] .= '<li>';
+      $form['changes'][$key]['#suffix'] .= '</li>';
+    }
+    $form['changes']['start_list'] = array('#value' => '<ul>', '#weight' => 0);
+    $form['changes']['end_list'] = array('#value' => '</ul>', '#weight' => 3);
+    $output .= drupal_render($form['changes']);
+  }
+  $save = drupal_render($form['save']);
+  $output .= drupal_render($form);
+  $output .= $save. '<a href="/">放弃</a>';
+  return $output;
+}
+
+function theme_sxjmlegal_edit ($form) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  $output = '';
+  if (empty($form['sxjmlegal']['conditions']['#value'])) {
+    $output.= drupal_render($form['sxjmlegal']);
+  } else {
+    if ($form['display']['#value'] == 1) {
+      drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+      $form['sxjmlegal']['conditions']['#prefix' ] = '<div class="sxjmlegal-terms">';
+      $form['sxjmlegal']['conditions']['#suffix' ] = '</div>';
+    }
+    $output .= '<div id="legal-preview">';
+    $output .= '<h3>'. t('预览') .'</h3>';
+    $output .= drupal_render($form['sxjmlegal']);
+    $output .= '</div>';
+  }
+
+  $output .= drupal_render($form);
+
+  return $output;
+}
+
+function theme_sxjmlegal_display($form) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  if (empty($form['sxjmlegal']['conditions']['#value'])) return;
+  if ($form['display']['#value'] == 1) {
+    $form['sxjmlegal']['conditions']['#prefix' ] = '<div class="sxjmlegal-terms">';
+    $form['sxjmlegal']['conditions']['#suffix' ] = '</div>';
+  }
+  return $form;
+}
+
+function theme_sxjmlegal_history($conditions) {
+  drupal_add_css(drupal_get_path('module', 'sxjmlegal') .'/sxjmlegal.css');
+  if(is_array($conditions)) {
+  $output = '<table><thead><tr><th>版本</th><th>维护</th><th>日期</th><th>详情</th><th>查看</th><tr></thead><tbody>';
+  foreach($conditions as $condition) {
+    $account = user_load($condition['moderater']);
+    $current_condition = sxjmlegal_get_conditions();
+    $current = $current_condition['tid'] == $condition['tid']?'<strong>(当前)</strong>':'';
+    $output .= '<tr><td>' . $condition['tid'] . $current . '</td><td>' .  l($account->name,'user/' . $account->uid) . '</td><td>' . date('Y-m-d h:i:s',$condition['date']) . '</td><td>' . nl2br(strip_tags($condition['changes'])) . '</td><td>' . l('查看','sxjm/legal/view/' . $condition['tid']) . '</td></tr>';
+  }
+  $output .= '</tbody></table>';
+  } else {
+    $output = '<div id="legal-view-no"><strong>' .t('暂无“用户协议和附加条款”历史。') . '</strong></div>';
+  }
+  return $output;
+}
+
+/*
+ * 移除多余“用户协议和附加条款”表单项
+ */
+function _sxjmlegal_remove_additional_fields(&$values){
+  unset($values['current_date']);
+  unset($values['current_id']);
+  unset($values['conditions']);
+  unset($values['display']);
+  unset($values['accept']);
+}

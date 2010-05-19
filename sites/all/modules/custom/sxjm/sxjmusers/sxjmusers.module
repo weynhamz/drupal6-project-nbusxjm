@@ -1,0 +1,645 @@
+<?php
+// $Id: sxjmusers.module$
+
+include_once('includes/sxjmusers.admin.inc');
+include_once('includes/sxjmusers.profile.inc');
+include_once('includes/sxjmusers.register.inc');
+include_once('includes/sxjmusers.settings.inc');
+
+/**
+ * 关于用户的状态：
+ * 0 - 封禁
+ * 1 - 缺少资料
+ * 2 - 等待验证
+ * 4 - 活跃
+ * 8 - 永久
+ **/
+define('SXJMUSERS_STATE_BLOCK',0x0);
+define('SXJMUSERS_STATE_REVIEW',0x1);
+define('SXJMUSERS_STATE_CONFIRM',0x2);
+define('SXJMUSERS_STATE_ACTIVE',0x4);
+define('SXJMUSERS_STATE_PERMANENT',0x8);
+
+/**
+ * Implementation of hook_init()
+ */
+function sxjmusers_init() {
+  // We have to perform a load in order to assure that the sxjmusers attributes are present.
+  global $user;
+  if ($user->uid) {
+    $ref = array();
+    // $user gets modified by reference.
+    sxjmusers_user('load', $ref, $user);
+  }
+  drupal_add_css(drupal_get_path('module', 'sxjmusers') . '/styles/jqueryui.css', 'module', 'all', FALSE);
+  drupal_add_css(drupal_get_path('module', 'sxjmusers') . '/styles/sxjmusers.css', 'module', 'all', FALSE);
+  drupal_add_js(drupal_get_path('module', 'sxjmusers') .  '/scripts/sxjmusers.js');
+}
+
+/**
+ * Implementation of hook_cron()
+ *
+ * 1. Extend the pernanent users time limit.
+ * 2. Block the time limited users.
+ */
+function sxjmusers_cron() {
+  $query = 'SELECT uid FROM {sxjmusers}';
+  $result = db_query($query);
+  while($sxjmusers = db_fetch_object($result)){
+    $account = user_load($sxjmusers->uid);
+    if($account->quit_time < time()) {
+      if($account->current_state & SXJMUSERS_STATE_PERMANENT) {
+        //已经到期的永久用户延长到当前
+        user_save($account, array('quit_time' => $account->quit_time + 3600*24*365*ceil((time()-$account->quit_time)/(3600*24*365))),'个人资料');
+      } elseif ($account->current_state >=  SXJMUSERS_STATE_ACTIVE) {
+        //封禁过期用户
+        user_save($account, array('current_state' => SXJMUSERS_STATE_BLOCK),'个人资料');
+      }
+    } elseif($account->quit_time - time() < 3600*24*30) {
+      if($account->current_state & SXJMUSERS_STATE_PERMANENT) {
+        //即将到期的永久用户延长设定的期限
+        user_save($account, array('quit_time' => $account->quit_time + 3600*24*365*variable_get('sxjmusers_time_limit',1)),'个人资料');
+      }
+    }
+  }
+}
+
+function sxjmusers_perm() {
+  return array('查看数学建模用户','管理数学建模用户');
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function sxjmusers_menu() {
+  $items = array();
+  $items['sxjm/user'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '会员管理',
+    'description' => '管理数学建模用户',
+    'page callback' => 'sxjmusers_admin',
+    'page arguments' => array(''),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模用户'),
+    'weight' => 3,
+  );
+  $items['sxjm/user/admin'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '查看',
+    'description' => '管理数学建模用户',
+    'weight' => 1,
+  );
+  $items['sxjm/user/admin/title/%'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '身份设置',
+    'description' => '管理数学建模用户',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmusers_admin_title',4),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模用户'),
+    'weight' => 1,
+  );
+  $items['sxjm/user/settings'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '设置',
+    'description' => '数学建模用户设置',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmusers_settings'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模用户'),
+    'weight' => 2,
+  );
+  $items['sxjm/user/print'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '会员信息',
+    'description' => '数学建模用户',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmusers_accounts_form','print'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模用户'),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function sxjmusers_theme() {
+  return array(
+    'sxjmusers_filters' => array(
+      'arguments' => array('form' => NULL),
+    ),
+    'sxjmusers_accounts' => array(
+      'arguments' => array('form' => NULL),
+    ),
+    'sxjmusers_accounts_html' => array(
+      'arguments' => array('title' => NULL, 'contents' => NULL),
+      'template' => 'templates/sxjmusers-accounts-html',
+    ),
+  );
+}
+
+/**
+ * Overwrite of user_access
+ */
+function sxjmusers_access($string, $account = NULL,$reset = NULL){
+  global $user;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
+  if ($account->uid == 1) {
+    return TRUE;
+  }
+
+  //只有具有相应权限，并且用户状态正常的用户才能执行操作
+  if (user_access($string,$account,$reset) && sxjmusers_state_check($account)) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function sxjmusers_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+/**
+ * Implementation of hook_user()
+ */
+function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'view':
+      if(!is_sxjmusers($account->uid)) break;
+      //数学建模用户个人页面
+      return sxjmusers_view($account);
+    case 'load':
+      //if(!is_sxjmusers($account->uid)) break;
+      //加载数学建模用户信息到 user 对象中
+      $dbresult = db_query("SELECT * FROM {sxjmusers} WHERE `uid` = '%d'", $account->uid);
+      while ($result = db_fetch_object($dbresult)) {
+        $fields = sxjmusers_fields();
+        foreach (array_keys($fields) as $key) {
+          if(isset($result->$key)) $account->$key = $result->$key;
+        }
+      }
+      break;
+    case 'login':
+      if(!is_sxjmusers($account->uid)) break;
+      if($account->quit_time - time() < 3600*24*30) {
+        if($account->current_state & SXJMUSERS_STATE_PERMANENT) {
+          //延长永久用户
+          user_save($account, array('quit_time' => $account->quit_time + 3600*24*365*variable_get('sxjmusers_time_limit',1)),'个人资料');
+        } else {
+          //提醒到期用户
+          sxjmusers_timeup_notification($account);
+        }
+      //封禁过期用户
+      } elseif ($account->quit_time < time() && $account->current_state >=  SXJMUSERS_STATE_ACTIVE) {
+        user_save($account, array('current_state' => SXJMUSERS_STATE_BLOCK),'个人资料');
+      }
+      break;
+    case 'form':
+      if(!is_sxjmusers($account->uid)) break;
+      $form = array();
+      if($category == '个人资料') {
+        //添加表单的默认值
+        $role = sxjmusers_get_role($account);
+        $fields = sxjmusers_fields();
+        foreach (array_keys($fields) as $key) {
+          if (isset($account->$key)) $info[$key] = $account->$key;
+        }
+        $form = sxjmusers_realinfo($info,$role);
+        // 添加表单的验证函数
+        $form['#validate'][] = 'sxjmusers_register_validate';
+      }
+      return $form;
+    case 'register':
+      if(!is_sxjmusers($account->uid)) break;
+      return sxjmusers_register_withpic();
+    case 'validate':
+      if(!is_sxjmusers($account->uid)) break;
+      sxjmusers_register_withpic_validate($edit, $account, $category);
+      if($category == 'account') {
+        $teacher_title_id = sxjmusers_get_title_id('指导老师');
+        $student_title_id = sxjmusers_get_title_id('数模会员');
+        if(isset($edit['title']) && isset($edit['title'][$teacher_title_id]) && isset($edit['title'][$student_title_id])) {
+          if ($edit['title'][$teacher_title_id] && $edit['title'][$student_title_id]) {
+            form_set_error('title','不能同时具有“指导老师”和“数模学员”两种身份');
+          } elseif (!$edit['title'][$teacher_title_id] && !$edit['title'][$student_title_id] && $op ) {
+            form_set_error('title','“指导老师”和“数模学员”两种身份必须选择一种');
+          }
+        }
+      }
+      break;
+    case 'update':
+      //if(!is_sxjmusers($account->uid)) break;
+      // 保存个人资料的更新
+      if($category == '个人资料') {
+        sxjmusers_realinfo_save($edit, $account, $category, TRUE);
+      }
+      break;
+    case 'insert':
+      //保存数学建模用户信息
+      sxjmusers_register_withpic_save($edit, $account, $category);
+      sxjmusers_legal_save($edit, $account, $category);
+      sxjmusers_base_save($edit, $account, $category);
+      sxjmusers_title_save($edit, $account, $category);
+      sxjmusers_realinfo_save($edit, $account, $category);
+      break;
+    case 'delete':
+      //同时从数据库中删除相关的信息。。。
+      db_query('DELETE FROM {sxjmusers} WHERE uid = %d', $account->uid);
+      break;
+    case 'categories':
+      // 这里没有 $account,不需要检测
+      // 设定数学建模用户个人页面的 category
+      return array(
+        array(
+         'name' => '个人资料',
+         'title' => '个人资料',
+         'access callback' => 'sxjmusers_access_category',
+         'access arguments' => array(1, '个人资料'),
+         'weight' => 3,
+        )
+      );
+    default:
+      break;
+  }
+}
+
+/**
+ * Check wether a given uid is sxjmusers or not.
+ *
+ * @param int $uid
+ *  sxjmusers uid
+ * @return boolen
+ *  Ture if it is a sxjmusers,otherwise not
+ */
+function is_sxjmusers($uid) {
+  return db_result(db_query("SELECT uid FROM {sxjmusers} WHERE uid = $uid"));
+}
+
+/**
+ * Get sxjmusers years array.
+ *
+ * @return array
+ *  sxjmusers years array
+ */
+function sxjmusers_get_years() {
+  //当前年份距 2006 年的时间再加两年
+  $length = date('Y',time()) - 2006 + 2;
+  for($i=0;$i<$length;$i++) {
+    $years[(string)(2006+$i)] = (string)(2006+$i) . ' 学年';
+  }
+  return $years;
+}
+
+/**
+ * Get sxjmusers genders array.
+ *
+ * @return array
+ *  sxjmusers genders array
+ */
+function sxjmusers_get_genders() {
+  return array('0' => '男','1' => '女');
+}
+
+/**
+ * Get sxjmusers colleges array.
+ *
+ * @return array
+ *  sxjmusers colleges array
+ */
+function sxjmusers_get_colleges() {
+  //顺序前晚不可再变更，要天骄只能在后面添加
+  //要不要换成学院简称为键的键值数组
+  return array('文学院','理学院','工学院','商学院','法学院','医学院','师范学院','体育学院','外语学院','海运学院','阳明学院','国交学院','科技学院','传艺学院','信息学院','建工学院','生命学院','职教学院','成教学院','教育学院');
+}
+
+/**
+ * Get sxjmusers mobile services array.
+ *
+ * @return array
+ *  sxjmusers mobile services array
+ */
+function sxjmusers_get_mobile_services() {
+  return array('0' => '移动','1' => '联通','2' => '电信');
+}
+
+function sxjmusers_state_check($account=NULL){
+  global $user;
+  static $setted;
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+  if($account->current_state >= SXJMUSERS_STATE_ACTIVE || $account->uid == 1 || $account->uid == 0) {
+    return TRUE;
+  }
+  else {
+    switch ($account->current_state) {
+      case SXJMUSERS_STATE_BLOCK:
+        $message = t('您的会员身份已经被封禁，请联系站点管理员给您解封后，您才有相应的权限。');
+        break;
+      case SXJMUSERS_STATE_REVIEW:
+        $message = t('您的个人资料可能不准确，只有在您重新修改并经过审核后，您才有相应的权限。');
+        break;
+      case SXJMUSERS_STATE_CONFIRM:
+        $message = t('您的会员身份需要审核，请耐心等待，只有通过审核，您才有相应的权限。');
+        break;
+    }
+
+    if (!$setted)drupal_set_message($message,'error');
+
+    if (!$setted) $setted = TRUE;
+
+    return FALSE;
+  }
+}
+
+/**
+ * Get sxjmusers state.
+ *
+ * @param int $state
+ * @return string
+ */
+function sxjmusers_state_current($state) {
+  $sxjmusers_options = sxjmusers_options();
+  if($state >= SXJMUSERS_STATE_ACTIVE) {
+    if($state & SXJMUSERS_STATE_PERMANENT) {
+      return t('活跃中-永久');
+    } else
+      return t('活跃中');
+  } else {
+    return $sxjmusers_options['current_state']['options'][$state];
+  }
+}
+
+/**
+ * Menu item access callback - check if a user has access to a profile category.
+ */
+function sxjmusers_access_category($account, $category) {
+  return user_edit_access($account) && is_sxjmusers($account->uid);
+}
+
+/**
+ * Notify users who has expire the time limit
+ *
+ */
+function sxjmusers_timeup_notification($account) {
+  if(time() < $account->quit_time) {
+    drupal_set_message(t('您的数模会员期限将于 ' . date('Y-m-d',$account->quit_time) . ' 到期，请联系数学建模协会重新登记注册。'),'warning');
+  } else {
+    drupal_set_message(t('您的数模会员期限已于 ' . date('Y-m-d',$account->quit_time) . ' 过期，请联系数学建模协会重新登记注册。'),'warning');
+  }
+}
+
+/**
+ * Get the sxjmusers role id of a given user.
+ *
+ * @param object $account
+ *  user object
+ * @return int
+ *  sxjmusers role id
+ */
+function sxjmusers_get_role($account) {
+  $teacher_role_id = sxjmusers_get_role_id('指导老师');
+  $student_role_id = sxjmusers_get_role_id('数模会员');
+  // 指导老师和数模会员二者只能选其一
+  $role = (in_array('指导老师',$account->roles) && !in_array('数模学员',$account->roles))?$teacher_role_id:$student_role_id;
+  return $role;
+}
+
+/**
+ * Get the sxjmusers role of a given uid.
+ *
+ * @param int $uid
+ *  user uid
+ * @return string
+ *  sxjmusers role
+ */
+function sxjmusers_get_role_from_uid($uid) {
+  $teacher_role_id = sxjmusers_get_role_id('指导老师');
+  $student_role_id = sxjmusers_get_role_id('数模会员');
+  $result = db_query("SELECT ur.rid FROM {users_roles} ur WHERE ur.uid=%d", $uid);
+  while ($role = db_fetch_object($result)) {
+    if ($role->rid == $teacher_role_id) {
+      return '指导老师';
+    } elseif ($role->rid == $student_role_id) {
+      return '数模会员';
+    } else {
+      return FALSE;
+    }
+  }
+}
+
+function sxjmusers_role_insert($role) {
+  if (!db_result(db_query("SELECT COUNT(*) FROM {role} WHERE name = '%s'", $role))) {
+    db_query("INSERT INTO {role} (name) VALUES ('%s')", $role);
+  }
+}
+
+function sxjmusers_role_delete($role) {
+  $role_id = sxjmusers_get_role_id($role);
+  db_query('DELETE FROM {role} WHERE rid = %d', $role_id);
+  db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
+  db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
+}
+
+function sxjmusers_roles_add($uid,$roles) {
+  foreach ($roles as $role) {
+    $role_id = sxjmusers_get_role_id($role);
+    if (!db_result(db_query("SELECT COUNT(*) FROM {users_roles} WHERE uid = %d AND rid = %d", $uid, $role_id))) {
+      db_query("INSERT INTO {users_roles} (uid,rid) VALUES (%d,%d)", $uid,$role_id);
+    }
+  }
+}
+
+function sxjmusers_role_operate($op,$roles){
+  switch($op){
+    case 'create':
+      foreach($roles as $role) {
+        sxjmusers_role_insert($role);
+      }
+      break;
+    case 'delete':
+      foreach($roles as $role) {
+        sxjmusers_role_delete($role);
+      }
+      break;
+  }
+}
+
+function sxjmusers_role_permissions_grant($new,$role) {
+  $role_id = sxjmusers_get_role_id($role);
+  $perms = db_result(db_query("SELECT perm FROM {permission} WHERE rid = %d",$role_id));
+  $perms = explode(', ',$perms);
+  $new_1 = array_intersect($perms,$new);
+  $new_2 = array_diff($new,$new_1);
+  $perms = array_merge($new_2,$perms);
+  db_query('DELETE FROM {permission} WHERE rid = %d', $role_id);
+  db_query("INSERT INTO {permission} (rid, perm) VALUES (%d, '%s')", $role_id, implode(', ',$perms));
+}
+
+function sxjmusers_title_insert($title) {
+  if (!db_result(db_query("SELECT COUNT(*) FROM {sxjmusers_title} WHERE name = '%s'", $title))) {
+    db_query("INSERT INTO {sxjmusers_title} (name) VALUES ('%s')", $title);
+  }
+}
+
+function sxjmusers_title_delete($title) {
+  $title_id = sxjmusers_get_title_id($title);
+  db_query('DELETE FROM {sxjmusers_title} WHERE tid = %d', $title_id);
+  db_query('DELETE FROM {sxjmusers_title_users} WHERE tid = %d', $title_id);
+}
+
+function sxjmusers_title_operate($op,$titles) {
+  switch($op){
+    case 'create':
+      foreach($titles as $title) {
+        sxjmusers_title_insert($title);
+      }
+      break;
+    case 'delete':
+      foreach($titles as $title) {
+        sxjmusers_title_delete($title);
+      }
+      break;
+  }
+}
+
+function sxjmusers_title_roles_grant($new,$title) {
+  $title_id = sxjmusers_get_title_id($title);
+  $roles = db_result(db_query("SELECT roles FROM {sxjmusers_title} WHERE tid = %d",$title_id));
+  $roles = explode(', ',$roles);
+  $new_1 = array_intersect($roles,$new);
+  $new_2 = array_diff($new,$new_1);
+  $roles = array_merge($new_2,$roles);
+  db_query("UPDATE {sxjmusers_title} SET `roles` = '%s' WHERE `tid` = %d", implode(', ',$roles),$title_id);
+  sxjmusers_title_permissions_rebuild();
+}
+
+function sxjmusers_title_permissions_rebuild() {
+  $titles = db_query('SELECT tid,roles FROM {sxjmusers_title}');
+
+  $titles_roles = array();
+  while ($title = db_fetch_object($titles)) {
+    $titles_roles[$title->tid] = explode(', ',$title->roles);
+  }
+  $titles_roles = array_filter($titles_roles);
+
+  $result = db_query("SELECT * FROM {sxjmusers_title_users}");
+
+  while ($row = db_fetch_object($result)) {
+    sxjmusers_roles_add($row->uid,$titles_roles[$row->tid]);
+  }
+}
+
+/**
+ * Get the id of a given sxjmusers role.
+ *
+ * @param string $role
+ *  sxjmusers role
+ * @return int
+ *  sxjmusers role id
+ */
+function sxjmusers_get_role_id($role) {
+  $roles = user_roles();
+  foreach ($roles as $k => $v) {
+    if ($v == $role) return $k;
+  }
+}
+
+function sxjmusers_titles() {
+  $titles = array();
+
+  $result = db_query('SELECT tid,name FROM {sxjmusers_title} ORDER BY name');
+
+  while ($title = db_fetch_object($result)) {
+    $titles[$title->tid] = $title->name;
+  }
+
+  return array_filter($titles);
+}
+
+/**
+ *
+ * @param array $title
+ * @param unknown_type $uid
+ */
+function sxjmusers_title_users_save($title,$uid) {
+  foreach($title as $tid) {
+    db_query("DELETE FROM {sxjmusers_title_users} WHERE uid = %d", $uid);
+    db_query("INSERT INTO {sxjmusers_title_users} (uid,tid) VALUES (%d,%d)", $uid,$tid);
+  }
+  sxjmusers_title_permission_rebuild();
+}
+
+/**
+ * Get the id of a given sxjmusers title.
+ *
+ * @param string $title
+ *  sxjmusers title
+ * @return int
+ *  sxjmusers title id
+ */
+function sxjmusers_get_title_id($title) {
+  $titles = sxjmusers_titles();
+  foreach ($titles as $k => $v) {
+    if ($v == $title) return $k;
+  }
+}
+
+function sxjmusers_admin_title(&$form_state,$uid) {
+  $titles = sxjmusers_titles();
+  $form['uid'] = array(
+    '#type' => 'value',
+    '#value' => $uid,
+  );
+  $form['titles'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('用户身份'),
+    '#weight' => 0,
+  );
+  $form['titles']['title'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('身份设置'),
+    '#options' => $titles,
+    '#description' => t('用户的身份'),
+    '#default_value' =>array(),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('确定'),
+  );
+  return $form;
+}
+
+function sxjmusers_admin_title_submit($form,&$form_state) {
+  //使用 user 模块内建的机制来保存角色
+  $title = array_filter($form_state['values']['title']);
+  $title = array_keys($title);
+  $uid = $form_state['values']['uid'];
+  sxjmusers_title_users_save($title,$uid);
+}
+
+function sxjmusers_admin_title_validate($form,&$form_state) {
+  $titles = sxjmusers_titles();
+  if(!isset($form_state['values']['titles'])) {
+    form_set_error('submit','您在开玩笑么？');
+    return;
+  }
+  foreach(array_keys($form_state['values']['title']) as $title) {
+    if (!array_key_exists($title,$titles)) {
+      form_set_error('title','不会是恶意攻击吧。。');
+    }
+  }
+}

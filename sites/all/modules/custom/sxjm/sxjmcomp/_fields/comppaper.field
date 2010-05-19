@@ -1,0 +1,346 @@
+<?php
+$content['type']  = array (
+  'name' => '竞赛论文',
+  'type' => 'comppaper',
+  'description' => '',
+  'title_label' => '论文标题',
+  'body_label' => '',
+  'min_word_count' => '0',
+  'help' => '',
+  'node_options' =>
+  array (
+    'status' => true,
+    'promote' => false,
+    'sticky' => false,
+    'revision' => false,
+  ),
+  'language_content_type' => '0',
+  'old_type' => 'comppaper',
+  'orig_type' => 'comppaper',
+  'module' => 'sxjmcomp',
+  'custom' => '0',
+  'modified' => '1',
+  'locked' => '1',
+  'reset' => 'Reset to defaults',
+  'og_content_type_usage' => 'group_post_standard',
+  'og_max_groups' => '',
+  'better_formats_allowed' =>
+  array (
+    1 => false,
+    2 => false,
+    3 => false,
+  ),
+  'better_formats_defaults' =>
+  array (
+    'node-1' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-2' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-5' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-6' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-1' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-2' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-5' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-6' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+  ),
+);
+$content['fields']  = array (
+  0 =>
+  array (
+    'label' => '论文摘要',
+    'field_name' => 'field_paper_info',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-4',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '关于论文的介绍，可以是论文的摘要或者概述。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        'format' => '1',
+        '_error_element' => 'default_value_widget][field_paper_info][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => NULL,
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  1 =>
+  array (
+    'label' => '论文材料',
+    'field_name' => 'field_paper_file',
+    'type' => 'filefield',
+    'widget_type' => 'filefield_widget',
+    'change' => 'Change basic information',
+    'weight' => '-3',
+    'file_extensions' => 'rar, tar',
+    'progress_indicator' => 'bar',
+    'file_path' => '',
+    'max_filesize_per_file' => '50M',
+    'max_filesize_per_node' => '',
+    'description' => '论文相关的所有材料，50M以内，RAR格式。',
+    'ffp_field_paper_file' =>
+    array (
+      'file_path' => 'sxjm/comp/paper',
+      'file_path_cleanup' =>
+      array (
+        'file_path_pathauto' => 0,
+        'file_path_tolower' => 0,
+        'file_path_transliterate' => 0,
+      ),
+      'file_name' => '[filefield-onlyname-original].[filefield-extension-original]',
+      'file_name_cleanup' =>
+      array (
+        'file_name_pathauto' => 0,
+        'file_name_tolower' => 0,
+        'file_name_transliterate' => 0,
+      ),
+      'retroactive_update' => '',
+      'active_updating' => 0,
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'list_field' => '0',
+    'list_default' => 1,
+    'description_field' => '0',
+    'op' => 'Save field settings',
+    'module' => 'filefield',
+    'widget_module' => 'filefield',
+    'columns' =>
+    array (
+      'fid' =>
+      array (
+        'type' => 'int',
+        'not null' => false,
+        'views' => true,
+      ),
+      'list' =>
+      array (
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => false,
+        'views' => true,
+      ),
+      'data' =>
+      array (
+        'type' => 'text',
+        'serialize' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  2 =>
+  array (
+    'label' => '论文赛题',
+    'field_name' => 'field_paper_ques',
+    'type' => 'nodereference',
+    'widget_type' => 'nodereference_select',
+    'change' => 'Change basic information',
+    'weight' => '-2',
+    'autocomplete_match' => 'contains',
+    'size' => '60',
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'nid' => '',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_paper_ques' =>
+      array (
+        0 =>
+        array (
+          'nid' => '',
+        ),
+        'nid' =>
+        array (
+          'nid' => '',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'referenceable_types' =>
+    array (
+      'compques' => 'compques',
+      'sxjmcomp' => 0,
+      'compteam' => 0,
+      'comppaper' => 0,
+    ),
+    'advanced_view' => 'field_paper_ques_helper',
+    'advanced_view_args' => '2',
+    'op' => 'Save field settings',
+    'module' => 'nodereference',
+    'widget_module' => 'nodereference',
+    'columns' =>
+    array (
+      'nid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+);
+$content['extra']  = array (
+  'title' => '-5',
+  'revision_information' => '2',
+  'author' => '3',
+  'options' => '1',
+  'menu' => '0',
+  'path' => '4',
+  'og_nodeapi' => '-1',
+);

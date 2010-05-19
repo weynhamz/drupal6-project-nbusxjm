@@ -1,0 +1,61 @@
+<?php
+// $Id: sxjmlegal.install,v 1.5 2008/08/02 14:03:13 MegaGrunt Exp $
+
+/**
+ * Implementation of hook_install()
+ */
+function sxjmlegal_install() {
+  $created = drupal_install_schema('sxjmlegal');
+  if ($created) {
+    // 防止在sxjmlegal/accept/* 页面显示用户登录区块，否则会引起很多麻烦
+    $result = db_fetch_object(db_query("SELECT pages FROM {blocks} WHERE module = 'user' AND delta = '0' LIMIT 1"));
+    $pages = empty($result->pages) ? "" : $result->pages . '\n';
+    $result = db_query("UPDATE {blocks} SET pages = '" . $pages . "legal/accept/*' WHERE module = 'user' AND delta = '0'");
+    drupal_set_message(t('“注册协议和使用条款”模块安装成功。'));
+  }
+  else {
+    drupal_set_message(t('“注册协议和使用条款”模块安装失败。'), 'error');
+  }
+  return;
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function sxjmlegal_uninstall() {
+  drupal_uninstall_schema('sxjmlegal');
+  variable_del('sxjmlegal_display');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function sxjmlegal_schema() {
+  $schema['sxjmlegal_accepted'] = array(
+    'fields' => array(
+      'lid'        => array('type' => 'serial', 'unsigned' => FALSE, 'not null' => TRUE, 'disp-width' => 10),
+      'uid'        => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0, 'disp-width' => 10),
+      'tid'        => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0, 'disp-width' => 10),
+      'accepted'   => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0, 'disp-width' => 11),
+    ),
+    'indexes' => array('uid' => array('uid')),
+    'primary key' => array('lid'),
+  );
+
+  $schema['sxjmlegal_conditions'] = array(
+    'fields' => array(
+      'tid'         => array('type' => 'serial', 'unsigned' => FALSE, 'not null' => TRUE, 'disp-width' => 10),
+      'conditions'  => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'date'        => array('type' => 'int', 'unsigned' => FALSE, 'not null' => TRUE, 'default' => 0, 'disp-width' => 11),
+      'extras'      => array('type' => 'text'),
+      'changes'     => array('type' => 'text'),
+      'moderater'   => array('type' => 'int', 'unsinged' => FALSE, 'not null' => TRUE, 'default' => 0, 'disp-width' => 10),
+    ),
+    'primary key' => array('tid'),
+  );
+
+  return $schema;
+}
+
