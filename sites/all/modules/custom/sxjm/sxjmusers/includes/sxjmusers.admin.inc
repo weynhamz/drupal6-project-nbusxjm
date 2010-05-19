@@ -261,7 +261,6 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
     '#value' => t('Update'),
   );
 
-  $titles = sxjmusers_titles();
   $genders = sxjmusers_get_genders();
   $colleges = sxjmusers_get_colleges();
   $mphone_service = sxjmusers_get_mobile_services();
@@ -279,7 +278,7 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
           $form[$key][$sxjmuserss->uid] = array('#value'=>l($sxjmuserss->name, 'user/'. $sxjmuserss->uid, array('html' => TRUE)));
           break;
         case 'tid':
-          $form[$key][$sxjmuserss->uid] = array('#value'=>$titles[$sxjmuserss->tid]);
+          $form[$key][$sxjmuserss->uid] = array('#value'=>implode('<br />',sxjmusers_get_titles($sxjmuserss->uid)));
           break;
         case 'gender':
           $form[$key][$sxjmuserss->uid] = array('#value'=>$genders[$sxjmuserss->gender]);
