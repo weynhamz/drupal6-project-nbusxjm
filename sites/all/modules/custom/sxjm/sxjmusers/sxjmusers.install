@@ -235,6 +235,6 @@ function sxjmusers_title_roles() {
   return array(
     '数模会员' => array('会员浏览'),
     '协会会长' => array('会员管理'),
-    '指导老师' => array('会员管理'),
+    '指导老师' => array('会员浏览','会员管理'),
   );
 }
