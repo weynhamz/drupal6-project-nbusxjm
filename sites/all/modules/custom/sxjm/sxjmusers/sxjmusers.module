@@ -216,6 +216,16 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
         // 添加表单的验证函数
         $form['#validate'][] = 'sxjmusers_register_validate';
       }
+      if($category == '用户身份') {
+        if ($account->current_state >=  SXJMUSERS_STATE_ACTIVE || !is_sxjmusers($account->uid)) {
+          //添加表单的默认值
+          $form = sxjmusers_admin_title($account->uid);
+        } else {
+          drupal_set_message('只有活跃的用户才能修改身份设定，要修改身份，请先激活该用户。');
+        }
+        // 添加表单的验证函数
+        $form['#validate'][] = 'sxjmusers_admin_title_validate';
+      }
       return $form;
     case 'register':
       if(!is_sxjmusers($account->uid)) break;
@@ -223,23 +233,15 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
     case 'validate':
       if(!is_sxjmusers($account->uid)) break;
       sxjmusers_register_withpic_validate($edit, $account, $category);
-      if($category == 'account') {
-        $teacher_title_id = sxjmusers_get_title_id('指导老师');
-        $student_title_id = sxjmusers_get_title_id('数模会员');
-        if(isset($edit['titles']) && isset($edit['titles'][$teacher_title_id]) && isset($edit['titles'][$student_title_id])) {
-          if ($edit['titles'][$teacher_title_id] && $edit['titles'][$student_title_id]) {
-            form_set_error('titles','不能同时具有“指导老师”和“数模学员”两种身份');
-          } elseif (!$edit['titles'][$teacher_title_id] && !$edit['titles'][$student_title_id] && $op ) {
-            form_set_error('titles','“指导老师”和“数模学员”两种身份必须选择一种');
-          }
-        }
-      }
       break;
     case 'update':
       //if(!is_sxjmusers($account->uid)) break;
       // 保存个人资料的更新
       if($category == '个人资料') {
         sxjmusers_realinfo_save($edit, $account, $category, TRUE);
+      }
+      if($category == '用户身份') {
+        sxjmusers_admin_title_save($edit, $account, $category, TRUE);
       }
       break;
     case 'insert':
@@ -264,6 +266,12 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
          'access callback' => 'sxjmusers_access_category',
          'access arguments' => array(1, '个人资料'),
          'weight' => 3,
+        ),
+        array(
+         'name' => '用户身份',
+         'title' => '用户身份',
+         'access callback' => TRUE,
+         'weight' => 4,
         )
       );
     default:
