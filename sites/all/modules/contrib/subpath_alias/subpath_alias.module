@@ -16,6 +16,41 @@ function subpath_alias_boot() {
   // modules in module_list().
 }
 
+function subpath_alias_get_ancestors($parts) {
+  $number_parts = count($parts);
+  $placeholders = array();
+  $ancestors = array();
+  $length =  $number_parts - 1;
+  $end = (1 << $number_parts) - 1;
+  $masks = variable_get('menu_masks', array());
+  // Only examine patterns that actually exist as router items (the masks).
+  foreach ($masks as $i) {
+    if ($i > $end) {
+      // Only look at masks that are not longer than the path of interest.
+      continue;
+    }
+    elseif ($i < (1 << $length)) {
+      // We have exhausted the masks of a given length, so decrease the length.
+      --$length;
+    }
+    $current = '';
+    for ($j = $length; $j >= 0; $j--) {
+      if ($i & (1 << $j)) {
+        $current .= $parts[$length - $j];
+      }
+      else {
+        $current .= '%';
+      }
+      if ($j) {
+        $current .= '/';
+      }
+    }
+    $placeholders[] = "'%s'";
+    $ancestors[] = $current;
+  }
+  return array($ancestors, $placeholders);
+}
+
 /**
  * Implementation of hook_url_alter_inbound().
  */
