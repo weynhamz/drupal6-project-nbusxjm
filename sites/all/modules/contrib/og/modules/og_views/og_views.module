@@ -172,7 +172,7 @@ function og_views_form_og_admin_settings_alter(&$form, $form_state) {
       $options[$key] = $view->name;
     }
   }
-  $form['og_settings']['group_details']['og_home_page_view'] = array(
+  $form['group_details']['og_home_page_view'] = array(
     '#type' => 'select',
     '#title' => t('Group home page view'),
     '#description' => t('Pick a View for your group home page. Only Views whose names start with <strong>og_ghp_</strong> are eligible. The View determines the layout of your group home page. You may alter the presentation using typical Views themeing techniques. See the Theme information link when editing your View and also see the Theme section of the !README. Also note that group admins can override this presentation using the included <em>Organic Groups Panels</em> module.', array('!README' => og_readme())),
