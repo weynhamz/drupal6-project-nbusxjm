@@ -460,7 +460,7 @@ function sxjmusers_role_delete($role) {
   db_query('DELETE FROM {users_roles} WHERE rid = %d', $role_id);
 }
 
-function sxjmusers_roles_add($uid,$roles) {
+function sxjmusers_role_add($uid,$roles) {
   foreach ($roles as $role) {
     $role_id = sxjmusers_get_role_id($role);
     if (!db_result(db_query("SELECT COUNT(*) FROM {users_roles} WHERE uid = %d AND rid = %d", $uid, $role_id))) {
@@ -545,7 +545,7 @@ function sxjmusers_title_perms_rebuild() {
   $result = db_query("SELECT * FROM {sxjmusers_title_users}");
 
   while ($row = db_fetch_object($result)) {
-    sxjmusers_roles_add($row->uid,$titles_roles[$row->tid]);
+    sxjmusers_role_add($row->uid,$titles_roles[$row->tid]);
   }
 }
 
