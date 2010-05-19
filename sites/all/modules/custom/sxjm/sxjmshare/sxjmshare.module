@@ -1,0 +1,32 @@
+<?php
+// $Id: sxjmshare.module $
+
+/**
+ * Implementation of hook_perm().
+ */
+function sxjmshare_perm() {
+  return array();
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sxjmshare_menu() {
+  $items = array();
+  $items['share'] = array (
+    'menu_name' => 'sxjm',
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '资源共享',
+    'description' => '数学建模',
+    'page callback' => 'sxjmshare_admin',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    //'access arguments' => array('配置数学建模模块'),
+    'weight' => 3,
+  );
+  return $items;
+}
+
+function sxjmshare_admin() {
+  return '';
+}

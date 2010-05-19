@@ -1,0 +1,190 @@
+<?php
+/**
+ * Implementation of hook_perm().
+ */
+function sxjmunion_perm() {
+  return array(
+    '管理数学建模协会',
+  );
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function sxjmunion_menu() {
+  $items['union'] = array (
+    'menu_name' => 'sxjm',
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '协会信息',
+    'description' => '数学建模',
+    'page callback' => 'sxjmunion_info',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 1,
+  );
+  $items['sxjm/union'] = array (
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '协会管理',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmunion_info_list',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模协会'),
+    'weight' => 2,
+  );
+  $items['sxjm/union/info'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '基本信息',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/union/info/list'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '列表',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/union/info/add'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '新增',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmunion_info_add',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模协会'),
+    'weight' => 1,
+  );
+  $items['sxjm/union/info/edit'] = array (
+    'type' => MENU_CALLBACK,
+    'title' => '编辑',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmunion_info_edit',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模协会'),
+    'weight' => 1,
+  );
+  $items['sxjm/union/department'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '部门管理',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmunion_department',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模协会'),
+    'weight' => 1,
+  );
+  $items['sxjm/union/department/list'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '部门列表',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/union/department/add'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '添加部门',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmunion_department_add',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模协会'),
+    'weight' => 1,
+  );
+  return $items;
+}
+
+
+function sxjmunion_department () {
+  return '';
+}
+
+
+function sxjmunion_department_add () {
+  module_load_include('inc','node','node.pages');
+  return node_add('department');
+}
+
+
+function sxjmunion_info() {
+  return '';
+}
+
+
+function sxjmunion_info_add() {
+  module_load_include('inc','node','node.pages');
+  return node_add('unioninfo');
+}
+
+
+function sxjmunion_info_list() {
+  return '';
+}
+
+
+
+/**
+ * Implementation of hook_form().
+ */
+function sxjmunion_form($node, $form_state){
+  $form = node_content_form($node, $form_state);
+  if (isset($form['body_field'])) $form['body_field']['body']['#rows'] = 5;
+  return $form;
+}
+
+
+/**
+ * Implementation of hook_node_info().
+ */
+function sxjmunion_node_info(){
+  $info['department']  = array (
+    'name' => '协会部门',
+    'help' => '',
+    'type' => 'department',
+    'module' => 'sxjmunion',
+    'description' => '',
+    'has_body' => 1,
+    'has_title' => 1,
+    'body_label' => '部门职责',
+    'title_label' => '部门名称',
+    'custom' => 0,
+    'locked' => 1,
+    'modified' => 0,
+    'orig_type' => 'department',
+    'min_word_count' => '0',
+  );
+   $info['document']  = array (
+    'name' => '部门文件',
+    'help' => '',
+    'type' => 'document',
+    'module' => 'sxjmunion',
+    'description' => '',
+    'has_body' => 1,
+    'has_title' => 1,
+    'body_label' => '文件内容',
+    'title_label' => '文件标题',
+    'custom' => 0,
+    'locked' => 1,
+    'modified' => 0,
+    'orig_type' => 'document',
+    'min_word_count' => '0',
+  );
+  $info['unioninfo']  = array (
+    'name' => '协会信息',
+    'help' => '',
+    'type' => 'unioninfo',
+    'module' => 'sxjmunion',
+    'description' => '',
+    'has_body' => 1,
+    'has_title' => 1,
+    'body_label' => '协会介绍',
+    'title_label' => '当前版本',
+    'custom' => 0,
+    'locked' => 1,
+    'modified' => 0,
+    'orig_type' => 'unioninfo',
+    'min_word_count' => '0',
+  );
+  //return $info;
+}

@@ -1,0 +1,6 @@
+; $Id$
+core = 6.x
+name = Sxjm
+package = sxjm
+description = Sxjm.
+;dependencies[] =

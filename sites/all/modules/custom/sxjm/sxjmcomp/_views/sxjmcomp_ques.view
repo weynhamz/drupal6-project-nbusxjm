@@ -1,0 +1,299 @@
+<?php
+// $Id: sxjmcomp_ques.view $
+$view = new view;
+$view->name = 'sxjmcomp_ques';
+$view->description = '';
+$view->tag = '';
+$view->view_php = '';
+$view->base_table = 'node';
+$view->is_cacheable = FALSE;
+$view->api_version = 2;
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+$handler = $view->new_display('default', 'Defaults', 'default');
+$handler->override_option('relationships', array(
+  'field_ques_comp_nid' => array(
+    'label' => '赛题竞赛',
+    'required' => 1,
+    'delta' => -1,
+    'id' => 'field_ques_comp_nid',
+    'table' => 'node_data_field_ques_comp',
+    'field' => 'field_ques_comp_nid',
+    'relationship' => 'none',
+  ),
+));
+$handler->override_option('fields', array(
+  'title' => array(
+    'label' => '名称',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 1,
+    'exclude' => 0,
+    'id' => 'title',
+    'table' => 'node',
+    'field' => 'title',
+    'relationship' => 'none',
+  ),
+  'field_ques_mark_value' => array(
+    'label' => '类型',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'label_type' => 'custom',
+    'format' => 'default',
+    'multiple' => array(
+      'group' => TRUE,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => FALSE,
+    ),
+    'exclude' => 0,
+    'id' => 'field_ques_mark_value',
+    'table' => 'node_data_field_ques_mark',
+    'field' => 'field_ques_mark_value',
+    'relationship' => 'none',
+  ),
+  'created' => array(
+    'label' => '日期',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'date_format' => 'custom',
+    'custom_date_format' => 'Y-m-d',
+    'exclude' => 0,
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'field_ques_comp_nid',
+  ),
+  'field_ques_info_value' => array(
+    'label' => '说明',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'label_type' => 'custom',
+    'format' => 'default',
+    'multiple' => array(
+      'group' => TRUE,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => FALSE,
+    ),
+    'exclude' => 0,
+    'id' => 'field_ques_info_value',
+    'table' => 'node_data_field_ques_info',
+    'field' => 'field_ques_info_value',
+    'relationship' => 'none',
+  ),
+  'field_comp_name_value' => array(
+    'label' => '',
+    'alter' => array(
+      'alter_text' => 0,
+      'text' => '',
+      'make_link' => 0,
+      'path' => '',
+      'link_class' => '',
+      'alt' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 0,
+    'label_type' => 'none',
+    'format' => 'default',
+    'multiple' => array(
+      'group' => TRUE,
+      'multiple_number' => '',
+      'multiple_from' => '',
+      'multiple_reversed' => FALSE,
+    ),
+    'exclude' => 1,
+    'id' => 'field_comp_name_value',
+    'table' => 'node_data_field_comp_name',
+    'field' => 'field_comp_name_value',
+    'relationship' => 'field_ques_comp_nid',
+  ),
+));
+$handler->override_option('sorts', array(
+  'created' => array(
+    'order' => 'DESC',
+    'granularity' => 'second',
+    'id' => 'created',
+    'table' => 'node',
+    'field' => 'created',
+    'relationship' => 'field_ques_comp_nid',
+  ),
+));
+$handler->override_option('filters', array(
+  'type' => array(
+    'operator' => 'in',
+    'value' => array(
+      'compques' => 'compques',
+    ),
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'id' => 'type',
+    'table' => 'node',
+    'field' => 'type',
+    'relationship' => 'none',
+  ),
+));
+$handler->override_option('access', array(
+  'type' => 'none',
+));
+$handler->override_option('cache', array(
+  'type' => 'none',
+));
+$handler->override_option('title', '竞赛赛题');
+$handler->override_option('header', '<p>这里列出了所有数学建模竞赛的赛题，您可以点击相应链接进入赛题页面进一步查看详情。</p>');
+$handler->override_option('header_format', '1');
+$handler->override_option('header_empty', 1);
+$handler->override_option('empty', '<strong>没有任何数学建模竞赛赛题</strong>');
+$handler->override_option('empty_format', '1');
+$handler->override_option('use_ajax', TRUE);
+$handler->override_option('use_pager', '1');
+$handler->override_option('style_plugin', 'table');
+$handler->override_option('style_options', array(
+  'grouping' => 'field_comp_name_value',
+  'override' => 1,
+  'sticky' => 1,
+  'order' => 'desc',
+  'columns' => array(
+    'title' => 'title',
+    'created' => 'created',
+    'field_ques_info_value' => 'field_ques_info_value',
+    'field_ques_comp_nid' => 'field_ques_comp_nid',
+    'field_comp_name_value' => 'field_comp_name_value',
+    'field_ques_mark_value' => 'field_ques_mark_value',
+  ),
+  'info' => array(
+    'title' => array(
+      'sortable' => 0,
+      'separator' => '',
+    ),
+    'created' => array(
+      'sortable' => 1,
+      'separator' => '',
+    ),
+    'field_ques_info_value' => array(
+      'sortable' => 0,
+      'separator' => '',
+    ),
+    'field_ques_comp_nid' => array(
+      'separator' => '',
+    ),
+    'field_comp_name_value' => array(
+      'sortable' => 0,
+      'separator' => '',
+    ),
+    'field_ques_mark_value' => array(
+      'sortable' => 1,
+      'separator' => '',
+    ),
+  ),
+  'default' => '-1',
+));
+$handler = $view->new_display('page', 'Page', 'page_1');
+$handler->override_option('path', 'comp/ques');
+$handler->override_option('menu', array(
+  'type' => 'normal',
+  'title' => '竞赛赛题',
+  'description' => '',
+  'weight' => '2',
+  'name' => 'navigation',
+));
+$handler->override_option('tab_options', array(
+  'type' => 'none',
+  'title' => '',
+  'description' => '',
+  'weight' => 0,
+  'name' => 'navigation',
+));

@@ -1,0 +1,27 @@
+<?php
+/**
+ * Implementation of hook_install().
+ */
+function sxjmunion_install() {
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function sxjmunion_uninstall() {
+  //sxjm_field_remove('sxjmunion');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function sxjmunion_enable() {
+  //sxjm_field_import('sxjmunion');
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function sxjmunion_disable() {
+
+}

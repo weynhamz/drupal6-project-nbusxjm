@@ -1,0 +1,1444 @@
+<?php
+// $Id: sxjmcomp.module $
+require_once dirname(__FILE__) . '/sxjmcomp.page.inc';
+
+define('SXJMCOMP_OPENING',0);
+define('SXJMCOMP_PENDING',1);
+define('SXJMCOMP_PROCESS',2);
+define('SXJMCOMP_REVIEWING',3);
+define('SXJMCOMP_FINISHED',4);
+
+define('COMPTEAM_DENY',0);
+define('COMPTEAM_NORMAL',1);
+
+
+/**
+ * Implementation of hook_perm().
+ */
+function sxjmcomp_perm() {
+  return array('管理数学建模竞赛','参加数学建模竞赛');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sxjmcomp_menu() {
+  $items = array();
+  /**
+   * 竞赛浏览部分，没有权限控制
+   */
+  $items['comp'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '数模竞赛',
+    'description' => '',
+    'menu_name' => 'sxjm',
+    'page callback' => 'sxjmcomp_intro',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 4,
+  );/*
+  $items['comp/list'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '竞赛列表',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 1,
+  );
+  $items['comp/ques'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '竞赛赛题',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 2,
+  );
+  $items['comp/team'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '参赛团队',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 3,
+  );
+  $items['comp/paper'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '参赛论文',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 4,
+  );*/
+  /**
+   * 竞赛操作部分，只有具有“管理数学建模竞赛”权限的用户才可以访问
+   */
+  $items['comp/%/stop'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_stop',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/stop/cancel'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_stop_cancel',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/start'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_start',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/start/cancel'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_start_cancel',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/process'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_process',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/process/cancel'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_confirm_process_cancel',1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  $items['comp/%/publish'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'sxjmcomp_publish',
+    'page arguments' => array(1),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );/*
+  $items['comp/%/papers'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '竞赛论文',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => array(),
+    'access callback' => '',
+    'access arguments' => array(),
+  );
+  $items['comp/%/results'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '竞赛结果',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => array(),
+    'access callback' => '',
+    'access arguments' => array(),
+  );*/
+  /**
+   * 竞赛管理部分：只有具有“管理数学建模竞赛”权限的用户才可以访问
+   */
+  $items['sxjm/comp'] = array (
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '竞赛管理',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'views_page',//use to intergrate a view as default tab
+    'page arguments' => array('sxjmcomp_admin','page_1'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+    'weight' => 5,
+  );
+  $items['sxjm/comp/admin'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '竞赛管理',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/comp/config'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '竞赛设置',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sxjmcomp_config_form'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+    'weight' => 2,
+  );
+  $items['sxjm/comp/create'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '建立竞赛',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'node_add',
+    'page arguments' => array('sxjmcomp'),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+    'file' => 'node.pages.inc',
+    'file path' => drupal_get_path('module','node'),
+    'weight' => 1,
+  );
+  /**
+   * 竞赛参与部分，只有具有“参加数学建模竞赛”权限的用户才可以访问
+   */
+  $items['comp/%/add/%'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '竞赛管理',
+    'description' => '',
+    'page callback' => 'sxjmcomp_comp_node_add',
+    'page arguments' => array(3,1),
+    'access callback' => 'sxjmcomp_access',
+    'access arguments' => array('create',3),
+  );
+  $items['comp/team/%/join'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Join group',
+    'page callback' => 'sxjmcomp_team_operate',
+    'page arguments' => array('join',2),
+    'access callback' => 'sxjmcomp_team_operate_access',
+    'access arguments' => array('join','参加数学建模竞赛',2),
+  );
+  $items['comp/team/%/quit'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Quit group',
+    'page callback' => 'sxjmcomp_team_operate',
+    'page arguments' => array('quit',2),
+    'access callback' => 'sxjmcomp_team_operate_access',
+    'access arguments' => array('quit','参加数学建模竞赛',2),
+  );
+  $items['comp/team/%/invite'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'Send invitation',
+    'page callback' => 'sxjmcomp_team_operate',
+    'page arguments' => array('invite',2),
+    'access callback' => 'sxjmcomp_team_operate_access',
+    'access arguments' => array('invite','参加数学建模竞赛',2),
+  );/*
+  $items['comp/team/%/paper'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '参赛论文',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 2,
+  );*/
+  $items['comp/team/%/paper/create'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '提交论文',
+    'page callback' => 'sxjmcomp_team_node_add',
+    'page arguments' => array('comppaper',2),
+    'access callback' => 'sxjmcomp_access',
+    'access arguments' => array('create','comppaper'),
+  );/*
+  $items['comp/ques/%/papers'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => '参赛论文',
+    'description' => '',
+    'page callback' => '',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 2,
+  );*/
+  $items['comp/ques/%/papers/packaging'] = array(
+    'type' => MENU_CALLBACK,
+    'title' => '打包论文',
+    'page callback' => 'sxjmcomp_compques_comppaper_packaging',
+    'page arguments' => array(2),
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模竞赛'),
+  );
+  return $items;
+}
+
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function sxjmcomp_menu_alter(&$items){
+  $sxjmcomp_nodetypes = array_keys(sxjmcomp_node_info());
+
+  $empty = TRUE;
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    if (in_array($type_url_str,$sxjmcomp_nodetypes)) {
+      unset($items['node/add/' . $type_url_str]);
+    }
+    else {
+      if (isset($items['node/add/' . $type_url_str])) $empty = FALSE;
+    }
+  }
+  if ($empty) unset($items['node/add']);
+
+  //modified OG module
+  unset($items['og/opml']);
+  unset($items['og/activity']);
+  unset($items['og/subscribe/%node']);
+}
+
+
+/**
+ * Implementation of hook_block().
+ */
+function sxjmcomp_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks[0]['info'] = '团队详情';
+      $blocks[0]['cache'] = BLOCK_NO_CACHE;
+      return $blocks;
+    case 'view':
+      switch ($delta) {
+        case 0:
+          return sxjmcomp_block_details();
+      }
+      break;
+    case 'configure':
+      switch ($delta) {
+      }
+      break;
+    case 'save':
+      switch ($delta) {
+      }
+      break;
+  }
+}
+
+
+/**
+ * Implementation of hook_theme().
+ */
+function sxjmcomp_theme() {
+  return array(
+    'sxjmcomp_result_form' => array(
+      'template' => 'templates/sxjmcomp-result-form',
+      'arguments' => array('form' => NULL),
+    ),
+    'views_view_field__field_comp_team__default__selective' => array(
+      'original hook' => 'views_view',
+      'arguments' => array('view' => NULL, 'options' => NULL, 'values' => NULL),
+    ),
+    'views_view_field__sxjmcomp_admin__field_comp_state_value' => array(
+      'original hook' => 'views_view',
+      'arguments' => array('view' => NULL, 'options' => NULL, 'values' => NULL),
+    ),
+  );
+}
+
+
+/**
+ * Implementation of hook_access().
+ */
+function sxjmcomp_access($op, $object, $account = NULL){
+  global $user;
+
+  if (!$object || !in_array($op, array('view', 'update', 'delete', 'create'), TRUE)) {
+    // If there was no node to check against, or the $op was not one of the
+    // supported ones, we return access denied.
+    return FALSE;
+  }
+
+  // Convert the node to an object if necessary:
+  if ($op != 'create') {
+    $object = (object)$object;
+  }
+  elseif($object == 'team' || $object == 'ques') {
+    $object = 'comp' . $object;
+  }
+
+  // If no user object is supplied, the access check is for the current user.
+  if (empty($account)) {
+    $account = $user;
+  }
+
+  if ($account->uid == 1) {
+    return TRUE;
+  }
+
+  if (user_access('administer nodes', $account)) {
+    return TRUE;
+  }
+
+  if (!user_access('access content', $account)) {
+    return FALSE;
+  }
+
+  // If the node is in a restricted format, disallow editing.
+  if ($op == 'update' && !filter_access($object->format)) {
+    return FALSE;
+  }
+
+  switch($op){
+    case 'view':
+      $node = $object;
+      // Let authors view their own nodes.
+      return sxjmusers_access('access content')?TRUE:(sxjmusers_state_check($account) && $account->uid == $node->uid && $account->uid != 0);
+      break;
+    case 'create':
+      $node_type = $object;
+      switch($node_type) {
+        case 'sxjmcomp':
+        case 'compques':
+          return sxjmusers_access('管理数学建模竞赛');
+        case 'compteam':
+        case 'comppaper':
+          return sxjmusers_access('管理数学建模竞赛')?TRUE:sxjmusers_access('参加数学建模竞赛');
+        default:
+          return FALSE;
+      }
+      break;
+    case 'update':
+    case 'delete':
+      $node = $object;
+      switch($node->type) {
+        case 'sxjmcomp':
+        case 'compques':
+          return sxjmusers_access('管理数学建模竞赛');
+        case 'compteam':
+        case 'comppaper':
+          return sxjmusers_access('管理数学建模竞赛')?TRUE:(sxjmusers_access('参加数学建模竞赛') && ($node->uid == $account->uid));
+        default:
+          return FALSE;
+      }
+      break;
+  }
+}
+
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function sxjmcomp_nodeapi(&$node, $op, $teaser = NULL, $page = NULL){
+  global $user;
+  switch($op) {
+    case 'view':
+      //如果是团队的管理员，当队员人数超过3人时，需要提醒
+      if(og_is_group_admin($node)  && $user->uid != 1 && sxjmcomp_access('view',$node)){
+        $result = db_result(db_query(og_list_users_sql(1,0,NULL,TRUE), $node->nid));
+        $message = '您当前参赛团队的成员数目已经超过三人，请对成员进行清理，仅仅保留三人作为参赛队员，并设置关闭群组。否则，竞赛开始后，根据系统设定，您的团队可能无法参赛，或者你团队的最后超额人员将会被自动调配到其他未满的团队。';
+        if($result > 3) drupal_set_message($message,'error');
+      };
+      // 团队页面显示队员头像列表
+      if($node->type == 'compteam') {
+        $node->content['compteam_users_faces'] = array('#value' => '<h4>团队成员:</h4>' . views_page('compteam_users_faces', 'default', $node->nid),'#weight' => -10);
+      }
+      break;
+    case 'insert':
+    case 'update':
+      sxjmcomp_reference_update($node);
+      break;
+    case 'delete':
+      sxjmcomp_reference_delete($node);
+      break;
+    case 'presave':
+      break;
+   }
+   //TODOset breadcrumb
+   if(($op == 'view' && $page) || ($op == 'prepare' && $node->nid)) {
+     sxjmcomp_set_breadcrumb($node,$op == 'prepare');
+   }
+}
+
+
+/**
+ * Implementation of hook_views_api().
+ */
+function sxjmcomp_views_api() {
+  return array(
+    'api' => 2,
+  );
+}
+
+
+/**
+ * Implementation of hook_node_info().
+ */
+function sxjmcomp_node_info(){
+  $info = array(
+    'sxjmcomp' => array (
+      'name' => '数模竞赛',
+      'help' => '',
+      'type' => 'sxjmcomp',
+      'module' => 'sxjmcomp',
+      'description' => '',
+      'has_body' => 0,
+      'has_title' => 1,
+      'body_label' => '',
+      'title_label' => '竞赛标识',
+      'custom' => 0,
+      'locked' => 1,
+      'modified' => 0,
+      'orig_type' => 'sxjmcomp',
+      'min_word_count' => '0',
+    ),
+    'compques' => array (
+      'name' => '竞赛赛题',
+      'help' => '',
+      'type' => 'compques',
+      'module' => 'sxjmcomp',
+      'description' => '',
+      'has_body' => 0,
+      'has_title' => 1,
+      'body_label' => '',
+      'title_label' => '赛题标题',
+      'custom' => 0,
+      'locked' => 1,
+      'modified' => 0,
+      'orig_type' => 'compques',
+      'min_word_count' => '0',
+     ),
+    'compteam' => array (
+      'name' => '竞赛团队',
+      'help' => '',
+      'type' => 'compteam',
+      'module' => 'sxjmcomp',
+      'description' => '',
+      'has_body' => 0,
+      'has_title' => 1,
+      'body_label' => '',
+      'title_label' => '团队标识',
+      'custom' => 0,
+      'locked' => 1,
+      'modified' => 0,
+      'orig_type' => 'compteam',
+      'min_word_count' => '0',
+    ),
+    'comppaper'=> array (
+      'name' => '竞赛论文',
+      'help' => '',
+      'type' => 'comppaper',
+      'module' => 'sxjmcomp',
+      'description' => '',
+      'has_body' => 0,
+      'has_title' => 1,
+      'body_label' => '',
+      'title_label' => '论文标题',
+      'custom' => 0,
+      'locked' => 1,
+      'modified' => 0,
+      'orig_type' => 'comppaper',
+      'min_word_count' => '0',
+    ),
+  );
+  return $info;
+}
+
+
+/**
+ * Implementation of hook_form().
+ */
+function sxjmcomp_form($node, $form_state){
+  $form = node_content_form($node, $form_state);
+  if (isset($form['body_field'])) $form['body_field']['body']['#rows'] = 5;
+  return $form;
+}
+
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function sxjmcomp_form_alter(&$form, &$form_state, $form_id) {
+  switch($form_id) {
+    case 'sxjmcomp_node_form':
+      unset($form['field_comp_ques']);//node_reference
+      unset($form['field_comp_team']);//node_reference
+      unset($form['field_comp_state']);//integer
+      $form['#redirect'] = 'sxjm/comp';
+      $form['title']['#type'] = 'hidden';
+      $form['title']['#default_value'] = strftime('%Y%m%d%H%M', $form['created']['#value']);
+      $form['#validate'][] = 'sxjmcomp_node_form_validate';
+      $form_state['storage']['sxjmcomp_state'] = isset($form['#node']->field_comp_state[0]['value'])?$form['#node']->field_comp_state[0]['value']:SXJMCOMP_OPEN;
+      break;
+    case 'compteam_node_form':
+      unset($form['og_description']);
+      unset($form['field_team_comp']);//node_reference
+      unset($form['field_team_state']);//integer
+      unset($form['field_team_score']);//text
+      //如果不是竞赛管理员添加的团队不需要设定团队队长
+      if (sxjmusers_access('管理数学建模竞赛')) {
+        $form['manager'] = array(
+          '#type' => 'textfield',
+          '#title' => t('团队队长'),
+          '#maxlength' => 60,
+          '#autocomplete_path' => 'user/autocomplete',
+          '#default_value' => '',
+          '#weight' => -10,
+          '#required' => TRUE,
+          '#description' => '由于您是系统管理员，可能您只是建立一个团队，但您并不需要参加，那么请您设定当前团队的创建者也就是队长。',
+        );
+      }
+      $form['title']['#type'] = 'hidden';
+      $form['title']['#default_value'] = strftime('%Y%m%d%H%M%S', $form['created']['#value']);
+      $form['#validate'][] = 'sxjmcomp_node_form_validate';
+      $form_state['storage']['sxjmcomp_nid'] = isset($form['#node']->sxjmcomp_nid)?$form['#node']->sxjmcomp_nid:$form['#node']->field_team_comp[0]['nid'];
+      $form_state['storage']['compteam_state'] = isset($form['#node']->field_team_state[0]['value'])?$form['#node']->field_team_state[0]['value']:COMPTEAM_NORMAL;
+      break;
+    case 'compques_node_form':
+      unset($form['field_ques_comp']);//node_reference
+      unset($form['field_ques_paper']);//node_reference
+      $form['#validate'][] = 'sxjmcomp_node_form_validate';
+      $form_state['storage']['sxjmcomp_nid'] =  isset($form['#node']->sxjmcomp_nid)?$form['#node']->sxjmcomp_nid:$form['#node']->field_ques_comp[0]['nid'];
+      break;
+    case 'comppaper_node_form':
+      unset($form['og_nodeapi']['visible']['og_groups']);
+      $form['#validate'][] = 'sxjmcomp_node_form_validate';
+      $form_state['storage']['compteam_nid'] =  isset($form['#node']->compteam_nid)?$form['#node']->compteam_nid:sxjmcomp_paper_get_team($form['#node']->nid);
+      break;
+    case 'node_delete_confirm':
+      $node = $form['#parameters'][2];//this index based on the index of the parameter occured in original form function parameters squence.
+      if($node->type == 'sxjmcomp') $form['#validate'][] = 'sxjmcomp_node_delete_confirm_validate';
+      break;
+    case 'og_confirm_subscribe':
+      $node = $form['#parameters'][3];//this index based on the index of the parameter occured in original form function parameters squence.
+      if($node->type == 'compteam') $form['#validate'][] = 'sxjmcomp_team_join_validate';
+      break;
+    case 'og_confirm_unsubscribe':
+      $form['actions']['cancel']['#value'] = l('取消','node/' . $form['group_node']['#value']->nid . '/users');
+      break;
+    case 'og_remove_admin_confirm':
+      $form['actions']['cancel']['#value'] = l('取消','node/' . $form['gid']['#value'] . '/users');
+      break;
+    case 'og_create_admin_confirm':
+      $form['actions']['cancel']['#value'] = l('取消','node/' . $form['node']['#value']->nid . '/users');
+      break;
+  }
+  return;
+}
+
+
+function sxjmcomp_node_form_validate($form,&$form_state) {
+  $form_id = $form_state['values']['form_id'];
+  switch($form_id) {
+    case 'sxjmcomp_node_form':
+      $form_state['values']['field_comp_state'][] = array('value'=>$form_state['storage']['sxjmcomp_state'],'_error_element'=>'field_comp_state][0][value');
+      //make form redirected
+      unset($form_state['storage']['sxjmcomp_state']);
+      break;
+    case 'compteam_node_form':
+      if (sxjmusers_access('管理数学建模竞赛')) {
+        //TODO need review
+        if (!($account = user_load(array('name' => $form_state['values']['manager'])))) {
+          form_set_error('manager', t('用户 %name 不存在。', array('%name' => $form_state['values']['manager'])));
+          break;
+        } else {
+          $form_state['values']['uid'] = $account->uid;
+        }
+        if(sxjmcomp_team_joined($form_state['storage']['sxjmcomp_nid'],$form_state['values']['uid'])) {
+          drupal_set_message('您设定的当前团队队长已经参加了竞赛，不允许在同一竞赛建立或参加多个团队。','error');
+          $form_state['rebuild'] = TRUE;
+        }
+      }
+      $form_state['values']['field_team_comp'][] = array('nid'=>$form_state['storage']['sxjmcomp_nid'],'_error_element'=>'field_team_comp][0][nid][nid');
+      $form_state['values']['field_team_state'][] = array('value'=>$form_state['storage']['compteam_state'],'_error_element'=>'field_team_state][0][value');
+      //make form redirected
+      unset($form_state['storage']['sxjmcomp_nid']);
+      unset($form_state['storage']['compteam_state']);
+      break;
+    case 'compques_node_form':
+      $form_state['values']['field_ques_comp'][] = array('nid'=>$form_state['storage']['sxjmcomp_nid'],'_error_element'=>'field_ques_comp][0][nid][nid');
+      //make form redirected
+      unset($form_state['storage']['sxjmcomp_nid']);
+      break;
+    case 'comppaper_node_form':
+      $form_state['values']['og_groups'] = array($form_state['storage']['compteam_nid']=>$form_state['storage']['compteam_nid']);
+      //make form redirected
+      unset($form_state['storage']['compteam_nid']);
+      break;
+  }
+  return;
+}
+
+
+function sxjmcomp_node_delete_confirm_validate($form,&$form_state){
+  $node = $form['#parameters'][2];
+  $comp_team = $node->field_comp_team;
+  $comp_ques = $node->field_comp_ques;
+  $first_team = array_shift($comp_team);
+  $first_ques = array_shift($comp_ques);
+  if(!is_null($first_team['nid']) || !is_null($first_ques['nid'])) {
+    //stop delete
+    $message = '含有参赛赛题或者参赛团队的数模竞赛无法删除，您必须首先删除竞赛所含有的赛题和团队后才能成功。';
+    drupal_set_message($message,'error');
+    drupal_goto($_GET['q']);
+  }
+  return;
+}
+
+
+function sxjmcomp_team_join_validate($form,&$form_state){
+  $gid = $form_state['values']['gid'];
+  //首先检查用户是否已经加入了该竞赛的其他组，如果是，则不能加入
+  $compteam = node_load($gid);
+  $sxjmcomp_nid = $compteam->field_team_comp[0]['nid'];
+  if(sxjmcomp_team_joined($sxjmcomp_nid)) {
+    $message = '您已经参加其他的参赛团队，不允许同一竞赛参加多个团队。';
+    drupal_set_message($message,'error');
+    drupal_goto($_GET['q']);
+  }
+  //超过3人的组需要队用户进行提醒
+  $result = db_result(db_query(og_list_users_sql(1,0,NULL,TRUE), $gid));
+  $message = '当前参赛团队的成员已超过三人，请考虑选择其他参赛团队，否则，报名结束后，会根据默认设定队进行处理，您的当前的超员团队可能无法参赛或者您会被自动调配到缺少成员的团队。';
+  if($result>=3) drupal_set_message($message,'error');
+  return;
+}
+
+
+function sxjmcomp_team_node_add($node_type,$team_title){
+  global $user;
+  module_load_include('inc','node','node.pages');
+
+  //如果参数类型不符合，则返回
+  if(!is_numeric($team_title)) {
+    drupal_set_message('验证错误。','error');
+    return '';
+  }
+
+  $types = node_get_types();
+  $team = node_load(sxjmcomp_team_get_nid($team_title));
+
+  //如果相关的数模团队不存在，则返回
+  if(empty($team)) {
+    drupal_set_message('验证错误。','error');
+    return '';
+  }
+
+  //只能允许团队管理员提交论文
+  if($node_type == 'comppaper' && !og_is_group_admin(node_load($team->nid))) {
+    drupal_set_message('只能由团队队长来提交论文。','error');
+    drupal_goto('node/' . $team->nid);
+  }
+
+  //竞赛只有在竞赛开始期间允许提交论文
+  $sxjmcomp = node_load($team->field_team_comp[0]);
+  if($node_type == 'comppaper' && $sxjmcomp->field_comp_state[0]['value'] != SXJMCOMP_PROCESS){
+    drupal_set_message('目前还无法提交论文，只有在竞赛进行中才可以提交论文。','error');
+    drupal_goto('node/' . $team->nid);
+  }
+
+  //只能提交一篇论文
+  $comppaper = og_group_child_nids($team->nid);
+  if($node_type == 'comppaper' && !empty($comppaper)) {
+    drupal_set_message('每个团队只允许提交一篇论文，请勿重复提交，如果需要修改提交的论文，请联系团队队长。','error');
+    drupal_goto('node/' . $team->nid);
+  }
+
+  if(isset($types[$node_type])) {
+    $node = array('uid' => $user->uid, 'name' => (isset($user->name) ? $user->name : ''), 'type' => $node_type, 'language' => '','compteam_nid' => $team->nid);
+    drupal_set_title(t('新建@name', array('@name' => $types[$node_type]->name)));
+    $output = drupal_get_form($node_type . '_node_form', $node);
+  } else {
+     drupal_set_message('错误的节点类型','error');
+  }
+  return $output;
+}
+
+
+function sxjmcomp_comp_node_add($node_type,$comp_title){
+  global $user;
+  module_load_include('inc','node','node.pages');
+
+  //如果参数类型不符合，则返回
+  if(!is_numeric($comp_title)) {
+    drupal_set_message('验证错误。','error');
+    return '';
+  }
+
+  $types = node_get_types();
+  $node_type = 'comp' . $node_type;
+
+  $comp_nid = sxjmcomp_comp_get_nid($comp_title);
+
+  //如果相关数模竞赛不存在，则返回
+  if(empty($comp_nid)) {
+    drupal_set_message('验证错误。','error');
+    return '';
+  }
+
+  //如果用户已经拥有一个组，则不能再建立一个组，竞赛管理员除外
+  if($node_type == 'compteam' && sxjmcomp_team_joined($comp_nid) && !sxjmusers_access("管理数学建模竞赛")) {
+    drupal_set_message('您已经参加其他的参赛团队，不允许同一竞赛建立或参加多个团队。','error');
+    drupal_goto($_GET['q']);
+  }
+  if(isset($types[$node_type])) {
+    $node = array('uid' => $user->uid, 'name' => (isset($user->name) ? $user->name : ''), 'type' => $node_type, 'language' => '','sxjmcomp_nid' => $comp_nid);
+    drupal_set_title(t('新建@name', array('@name' => $types[$node_type]->name)));
+    $output = drupal_get_form($node_type . '_node_form', $node);
+  } else {
+     drupal_set_message('错误的节点类型','error');
+  }
+  return $output;
+}
+
+
+function sxjmcomp_intro() {
+  $intro = variable_get('sxjmcomp_intro','');
+  $output = empty($intro)?'暂无介绍':$intro;
+  return $output;
+}
+
+
+function sxjmcomp_process($comp_nid) {
+  $teams = sxjmcomp_comp_get_team($comp_nid);
+  $team_large = array();
+  $team_small = array();
+  foreach($teams as $team) {
+    $members_count = sxjmcomp_team_members_count($team['nid']);
+    if ($members_count == 3) {
+      //关闭用户组
+      sxjmcomp_team_set_state_og(OG_CLOSED,$team['nid']);
+       continue;
+    } elseif ($members_count > 3) {
+       $team_large[] = $team['nid'];
+    } elseif ($members_count < 3) {
+      $team_small[] = $team['nid'];
+    }
+  }
+  //禁止参赛
+  if(variable_get('sxjmcomp_team_process_category',1) == 0){
+     foreach($team_large as $k => $team_nid){
+        sxjmcomp_team_set_state(COMPTEAM_DENY,$team_nid);
+     }
+     foreach($team_small as $k => $team_nid){
+       sxjmcomp_team_set_state(COMPTEAM_DENY,$team_nid);
+     }
+     //TODO 对于禁止参赛的团队提供机会后面修改队员
+  //处理队列
+  } else {
+    //首先取得多出的参赛人员
+    $extra_members = array();
+    foreach($team_large as $k => $team_nid) {
+      $new_extra = sxjmcomp_team_members_extra($team_nid);
+      $extra_members = array_merge($extra_members,$new_extra);
+    }
+    //将多出的参赛人员分配到未满的组中
+    if (!empty($extra_members)) {
+      foreach($team_small as $k => $team_nid) {
+        sxjmcomp_team_fullfill($team_nid,$extra_members);
+        if (sxjmcomp_team_members_count($team_nid) == 3) {
+          unset($team_small[$k]);
+        }
+        if (empty($extra_members)) break;
+      }
+    }
+    //这时未满的组或者多出的参赛人员至少有一项为空，继续操作
+    if (!empty($extra_members)) {
+      //给extra_members单独建立组
+      sxjmcomp_team_members_regroup($extra_members);
+    } else {
+      //把剩下的team_small拆散，重新组合
+      $team_empty = array();
+      while(!empty($team_small)) {
+        //找到下一个成员不为空的团队
+        do {
+          $team_nid = array_shift($team_small);
+          $members_count = sxjmcomp_team_members_count($team_nid);
+          if ((int)$members_count === 0) {
+            $team_empty[] = $team_nid;
+          }
+        } while ((int)$members_count === 0 && !empty($team_small));
+        //对于当前的团队，用剩下的断队的成员来补足
+        if(!empty($team_nid)) {
+          $left_members = array();
+          foreach($team_small as $team_left) {
+            $new_left = sxjmcomp_team_members_left($team_left);
+            $left_members = array_merge($left_members,$new_left);
+          }
+          sxjmcomp_team_fullfill($team_nid,$left_members);
+        }
+
+      }
+      //删除空的组
+      foreach ($team_empty as $team_nid) {
+        node_delete($team_nid);;
+      }
+    }
+  }
+
+  return ;
+}
+
+
+function sxjmcomp_publish($comp_title) {
+  $comp = node_load(sxjmcomp_comp_get_nid($comp_title));
+  switch($comp->field_comp_state[0]['value']) {
+    case SXJMCOMP_REVIEWING:
+      return drupal_get_form('sxjmcomp_result_form',$comp_title);
+    case SXJMCOMP_FINISHED:
+      return drupal_get_form('sxjmcomp_republish_confirm_form',$comp_title);
+  }
+}
+
+
+function sxjmcomp_block_details() {
+  global $user;
+  // Only display group details if we have a group context.
+  if (($node = og_get_group_context()) && $node->type == 'compteam' && sxjmcomp_access('view', $node) && (sxjmusers_access('参加数学建模竞赛') || sxjmusers_access('管理数学建模竞赛'))) {
+
+    list($txt, $subscription) = sxjmcomp_team_members_countlink($node);
+
+    if ($subscription == 'active' || sxjmusers_access('管理数学建模竞赛')) {
+
+      $links = module_invoke_all('sxjmcomp_links', $node);
+
+      $links['manager'] = t('创建者：!name', array('!name' => theme('username', $node)));
+
+      $title = ($node->uid == $user->uid) ? '创建者':(og_is_group_admin($node)?'管理员':'普通成员');
+      $links['title'] = '身份：' . $title;
+
+      $links['subscribers'] = $txt;
+
+      $post_types = og_get_types('group_post');
+      if(in_array('comppaper',$post_types)) {
+        $post_type = 'comppaper';
+
+        $links[$post_type] = l('参赛论文','comp/team/' . $node->title . '/paper');
+        //只有团队管理员才可以提交论文
+        if (sxjmcomp_access('create',$post_type) && og_is_group_admin($node)) {
+          $links["create_$post_type"] = l('提交论文','comp/team/' . $node->title . '/paper/create');
+        }
+      }
+
+      if(og_is_group_admin($node) || sxjmusers_access('管理数学建模竞赛')) {
+        $links['users'] = l('团队成员','comp/team/' . $node->title . '/users');
+      }
+
+      if ($node->og_selective < OG_INVITE_ONLY  && og_is_group_member($node->nid, FALSE)) {
+        $links['invite'] = l('邀请', 'comp/team/' . $node->title . '/invite',array('query' => 'destination=comp/team/' . $node->title));
+      }
+
+      if(isset($subscription) && og_is_group_member($node->nid, FALSE)) {
+        $links['quit'] = l('退出', 'comp/team/' . $node->title . '/quit',array('query' => 'destination=comp/team/' . $node->title));
+      }
+    }
+
+    elseif ($subscription == 'requested') {
+      $links['approval'] = '请耐心等待您的加入请求通过。';
+      $links['delete'] = l('删除加入请求。', 'og/unsubscribe/' . $node->nid . '/' . $user->uid, array('query' => 'destination=comp/team/' . $node->title));
+    }
+
+    elseif ($node->og_selective < OG_INVITE_ONLY) {
+      if(sxjmusers_access('参加数学建模竞赛')) {
+        $links['join'] = l('加入','comp/team/' . $node->title . '/join');
+      } else {
+        $links['join'] = '您没有参加数学建模竞赛的权限。';
+      }
+    }
+
+    elseif ($node->og_selective == OG_INVITE_ONLY) {
+      $links['closed'] = '这是一个<em>需要邀请</em>的群组。管理员根据需要增加/删除成员。';
+    }
+
+    elseif ($node->og_selective == OG_CLOSED) {
+      $links['closed'] = '这是一个<em>关闭</em>的群组。管理员根据需要增加/删除成员。';
+    }
+
+    elseif (!$user->uid) {
+      $dest = drupal_get_destination();
+      if (variable_get('user_register', 1) == 0) {
+        $links['must_login'] = t('你必须<a href="!login">登录</a>才能在这个群组发文。', array('!login' => url("user/login", array('query' => $dest))));
+      }
+      else {
+        $links['must_login'] = t('你必须<a href="!register">注册</a>或者<a href="!login">登录</a>才能在这个群组发文.', array('!register' => url("user/register", array('query' => $dest)), '!login' => url("user/login", array('query' => $dest))));
+      }
+    }
+
+    // Modify these links by reference. If you want control of the whole block, see og_block_details().
+    drupal_alter('sxjmcomp_links', $links, $node);
+
+    $block['content'] = theme('item_list', $links);
+    $block['subject'] = l('团队详情', 'node/' . $node->nid);
+    return $block;
+  }
+}
+
+
+function sxjmcomp_reference_info() {
+  return array(
+    //'node_type' => array('field_a2b' => 'field_b2a')
+    'sxjmcomp' => array(),
+    'compteam' => array('field_team_comp'=>'field_comp_team'),
+    'compques' => array('field_ques_comp'=>'field_comp_ques'),
+    'comppaper' => array('field_paper_ques'=>'field_ques_paper'),
+  );
+}
+
+
+function sxjmcomp_reference_delete(&$object_a) {
+
+  $field_a2b = $field_b2a = '';
+
+  $reference_info = sxjmcomp_reference_info();
+
+  list($field_a2b,$field_b2a) = each($reference_info[$object_a->type]);
+
+  if(!empty($field_a2b) && !empty($field_b2a)) {
+    $array = $object_a->$field_a2b;
+
+    if(!is_array($array[0])) return;
+
+    $object_b = $array[0]['nid'];
+
+    $object_b = node_load($object_b);
+
+    if(!is_array($object_b->$field_b2a)) break;
+
+    $array = $object_b->$field_b2a;
+    foreach($array as $key => $value) {
+      if ($value['nid'] == $object_a->nid) {
+        unset($array[$key]);
+      }
+    }
+    $object_b->$field_b2a = $array;
+    node_save($object_b);
+
+  }
+  return;
+}
+
+
+function sxjmcomp_reference_update(&$object_a) {
+  $field_a2b = $field_b2a = '';
+
+  $reference_info = sxjmcomp_reference_info();
+
+  list($field_a2b,$field_b2a) = each($reference_info[$object_a->type]);
+
+  if(!empty($field_a2b) && !empty($field_b2a)) {
+    $array = $object_a->$field_a2b;
+
+    if(!is_array($array[0])) return;
+
+    $object_b = $array[0]['nid'];
+
+    $object_b = node_load($object_b);
+
+    $catched = FALSE;
+    if(count($object_b->$field_b2a)==1) {
+      $array = array();
+
+      $field_b2a_first = array_pop($object_b->$field_b2a);
+
+      if(is_null($field_b2a_first['nid'])) {
+        $field_b2a_first['nid'] = $object_a->nid;
+        $array[] = $field_b2a_first;
+      } elseif($field_b2a_first['nid'] != $object_a->nid) {
+        $array[] = $field_b2a_first;
+        $array[] = array('nid'=>$object_a->nid);
+      } else {
+        if(!sxjmcomp_node_exists($object_a->nid)) {
+          $array = array();
+          $catched = TRUE;
+        } else {
+          return;
+        }
+      }
+
+    } else {
+
+      $array = $object_b->$field_b2a;
+      foreach($array as $key => $value){
+        if ($value['nid'] == $object_a->nid) {
+          if(!sxjmcomp_node_exists($object_a->nid)) {
+            unset($array[$key]);
+            $catched = TRUE;
+          } else {
+            $catched = TRUE;
+          }
+        }
+      }
+
+      if(!$catched) $array[] = array('nid'=>$object_a->nid);
+
+    }
+
+    $object_b->$field_b2a = $array;
+    node_save($object_b);
+  }
+
+  return;
+}
+
+
+function sxjmcomp_team_operate($op,$team_title){
+  global $user;
+
+  module_load_include('inc','og','og.pages');
+  $team = node_load(sxjmcomp_team_get_nid($team_title));
+
+  switch($op) {
+    case 'join':
+      return og_subscribe($team);
+    case 'quit':
+      if ($team->og_selective == OG_CLOSED) {
+        drupal_set_message('您无法离开当前团队，因为它已经<em>关闭</em>。您可以团队的管理员来将您移除。','error');
+        drupal_goto($GET[q]);
+      }
+      elseif ($team->uid == $user->uid) {
+        drupal_set_message('您是当前团队的创建者，无法退出，但您可以删除当前团队。','error');
+        drupal_goto($GET[q]);
+      } else {
+        return drupal_get_form('og_confirm_unsubscribe',$team,$user);
+      }
+      break;
+    case 'invite':
+      return drupal_get_form('og_invite_form',$team->nid);
+      break;
+  }
+}
+
+
+function sxjmcomp_team_operate_access($op,$string,$team_title) {
+  $team = node_load(sxjmcomp_team_get_nid($team_title));
+  switch($op) {
+    case 'join':
+    case 'quit':
+      return sxjmusers_access($string) && node_access('view',$team);
+    case 'invite':
+      return sxjmusers_access($string) && og_menu_access_invite($team->nid);
+  }
+}
+
+
+function sxjmcomp_ques_paper_package_path($ques_nid) {
+  return file_directory_path() . variable_get('sxjmcomp_ques_paper_package_path','/sxjm/comp/ques/papers') . '/papers-' . $ques_nid . '.zip';
+}
+
+
+function sxjmcomp_ques_paper_package_check($ques_nid) {
+  $path = sxjmcomp_ques_paper_package_path($ques_nid);
+  return file_exists($path);
+}
+
+
+function sxjmcomp_ques_paper_packaging($ques_nid) {
+  if(sxjmcomp_ques_paper_package_check($ques_nid)){
+    return drupal_get_form('sxjmcomp_compques_comppaper_repackaging_confirm',$ques_nid);
+  } else {
+    sxjmcomp_ques_paper_compress($ques_nid);
+    drupal_goto(drupal_get_destination());
+  }
+}
+
+
+function sxjmcomp_ques_paper_compress($ques_nid) {
+  $ques = node_load($ques_nid);
+  $papers = $ques->field_ques_paper;
+  foreach($papers as $paper) {
+    $comppaper = node_load($paper['nid']);
+    $files[] = $comppaper->field_paper_file[0]['filepath'];
+  }
+  include_once dirname(__FILE__) . '/Archive/Zip.php';
+  $obj = new Archive_Zip('sites/default/files/sxjm/comp/ques/papers/papers-' . $ques_nid . '.zip'); // name of zip file
+
+  if ($obj->create($files)) {
+    drupal_set_message('打包成功。');
+    return TRUE;
+  } else {
+    drupal_set_message('打包失败。');
+    return FALSE;
+  }
+}
+
+
+function sxjmcomp_ques_paper_repackaging_confirm($form_state,$ques_nid) {
+  $comp = node_load(sxjmcomp_ques_get_comp($ques_nid));
+  $form['compques'] = array('#type' => 'value', '#value' => $ques_nid);
+  $form['sxjmcomp'] = array('#type' => 'value', '#value' => $comp);
+  return confirm_form($form, '检测存在旧的论文打包文件，需要重新打包论文吗？','comp/' . $comp->title . '/papers','竞赛结束后，将不能再提交参赛论文。','是的，重新打包','不用了');
+}
+
+
+function sxjmcomp_ques_paper_repackaging_confirm_submit($form, &$form_state) {
+  $sxjmcomp = $form_state['values']['sxjmcomp'];
+  $compques_nid = $form_state['values']['compques'];
+  $path = sxjmcomp_ques_paper_package_path($compques_nid);
+  if(file_delete($path)) {
+    sxjmcomp_ques_paper_compress($compques_nid);
+  } else {
+    drupal_set_message('无法删除打包文件，请检查原因，或者联系站点管理员。','error');
+  }
+  $form_state['redirect'] = 'comp/' . $sxjmcomp->title . '/papers';
+}
+
+
+function sxjmcomp_result_get_options($comp){
+  $awards = $comp->field_comp_award;
+  foreach($awards as $key => $value){
+    $return[$key] = $value['value'];
+  }
+  $return[-1] = '未获奖';
+  return $return;
+}
+
+
+function sxjmcomp_team_joined($comp_nid,$uid=NULL){
+  $comp = node_load($comp_nid);
+  $teams = $comp->field_comp_team;
+  foreach ($teams as $team) {
+    if (og_is_group_member($team['nid'],TRUE,$uid)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+
+function sxjmcomp_team_create($uid,$comp_nid) {
+  // Insert new data:
+  $created = time();
+  $node->type = 'compteam';
+  module_load_include('inc', 'node', 'node.pages');
+  $type = node_get_types('type', $node->type);
+  node_object_prepare($node);
+  $node->uid = $uid;
+
+  $node->title = strftime('%Y%m%d%H%M%S', $created);
+  if ($type->has_body) {
+    $node->body = "这是系统对没有成功组队的队员建立的团队。";
+    $node->teaser = node_teaser($node->body);
+    $node->filter = variable_get('filter_default_format', 1);
+    $node->format = FILTER_FORMAT_DEFAULT;
+  }
+  $node->language = '';
+  $node->revision = 0;
+  $node->promote = 0;
+  $node->created = $created;
+  $node->field_team_comp[] = array('nid'=>$comp_nid);
+  node_save($node);
+  return $node;
+}
+
+
+function sxjmcomp_team_fullfill($team_nid,&$members) {
+  while(sxjmcomp_team_members_count($team_nid) < 3 && !empty($members)) {
+    $member = array_shift($members);
+    list($gid, $uid) = each($member);
+    unset($members[$uid]);
+    og_save_subscription($team_nid,$uid,array('is_active'=>1));
+    og_delete_subscription($gid,$uid);
+  };
+  //对于已经为三人的团队设置关闭状态
+  if(sxjmcomp_team_members_count($team_nid) == 3) sxjmcomp_team_set_state_og(OG_CLOSED,$team_nid);
+  return;
+}
+
+
+function sxjmcomp_comp_set_state($state,$comp_nid) {
+  $comp = node_load($comp_nid);
+  $comp->field_comp_state[0]['value'] = $state;
+  node_save($comp);
+}
+
+function sxjmcomp_team_set_state($state,$team_nid){
+  $team = node_load($team_nid);
+  $team->field_team_state[0]['value'] = $state;
+  node_save($team);
+}
+
+
+function sxjmcomp_team_set_state_og($state,$team_gid){
+  return db_query('UPDATE {og} SET `og_selective` = %d WHERE `nid` = %d',$state,$team_gid);
+}
+
+
+function sxjmcomp_comp_get_nid($comp_title) {
+  return db_result(db_query('SELECT nid FROM {node} WHERE `title` = %s',$comp_title));
+}
+
+
+function sxjmcomp_comp_get_ques($comp_nid) {
+  $comp = node_load($comp_nid);
+  return $comp->field_comp_ques;
+}
+
+
+function sxjmcomp_comp_get_team($comp_nid) {
+  $comp = node_load($comp_nid);
+  return $comp->field_comp_team;
+}
+
+
+function sxjmcomp_team_get_nid($team_title){
+  return db_result(db_query('SELECT nid FROM {node} WHERE `title` = %s',$team_title));
+}
+
+
+function sxjmcomp_team_get_comp($team_nid) {
+  $team = node_load($team_nid);
+  return $team->field_team_comp[0]['nid'];
+}
+
+
+function sxjmcomp_ques_get_comp($ques_nid){
+  $ques = node_load($ques_nid);
+  return $ques->field_ques_comp[0]['nid'];
+}
+
+
+function sxjmcomp_paper_get_team($paper_nid) {
+  return db_result(db_query('SELECT nid FROM {og_ancestry} WHERE `group_nid` = %d',$paper_nid));
+}
+
+
+function sxjmcomp_team_members_left($team_nid){
+  $sql = og_list_users_sql();
+  $result = db_query($sql, $team_nid);
+  $return = array();
+  while ($row = db_fetch_array($result)) {
+    $return[] = array($team_nid=>$row['uid']);
+  }
+  return $return;
+}
+
+
+function sxjmcomp_team_members_extra($team_nid){
+  $sql = og_list_users_sql();
+  $result = db_query($sql, $team_nid);
+  $count = 0;
+  while ($row = db_fetch_array($result)) {
+    $count++;
+    if ($count > 3) {
+      $return[] = array($team_nid=>$row['uid']);
+    }
+  }
+  return $return;
+}
+
+
+function sxjmcomp_team_members_count($team_nid){
+  return db_result(db_query(og_list_users_sql(1,0,NULL,TRUE),$team_nid));
+}
+
+
+function sxjmcomp_team_members_string($team_nid) {
+  $result = db_query(og_list_users_sql(1,0,NULL,FALSE),$team_nid);
+  $string = '';
+  while ($member = db_fetch_object($result)) {
+    $member = user_load($member->uid);
+    if(!empty($string)) $string .= '、';
+    $string .= $member->realname;
+  }
+  return $string;
+}
+
+
+function sxjmcomp_team_members_regroup(&$extra_members){
+  while(!empty($extra_members)) {
+    list($uid, $gid) = each($extra_members);
+    unset($extra_members[$uid]);
+    $node = node_load($gid);
+    $sxjmcomp_nid = $node->field_team_comp[0]['nid'];
+    $new_group = sxjmcomp_team_create($uid,$sxjmcomp_nid);
+    if(isset($new_group->nid)){
+      og_delete_subscription($gid,$uid);
+      sxjmcomp_team_fullfill($new_group->nid,$extra_members);
+    }
+  };
+}
+
+
+ function sxjmcomp_team_members_countlink($node) {
+  global $user;
+  $result = db_query(og_list_users_sql(0, 0, NULL), $node->nid);
+  $cnt_pending = $cnt_all = 0;
+  $subscription = '';
+  while ($row = db_fetch_object($result)) {
+    $cnt_all++;
+    if ($row->is_active == 0) {
+      $cnt_pending++;
+    }
+    if ($row->uid == $user->uid) {
+      if ($row->is_active) {
+        $subscription = 'active';
+      }
+      else {
+        $subscription = 'requested';
+      }
+    }
+  }
+  $txt = format_plural($cnt_all-$cnt_pending, '成员：1 人', '成员：@count 人');
+  // The hyperlinked version of this text is supplied by og_views.module in alter hook.
+  $txt .= $cnt_pending ? " ($cnt_pending)" : '';
+  return array($txt, $subscription);
+}
+
+
+function sxjmcomp_node_exists($nid) {
+  return db_result(db_query('SELECT nid FROM {node} WHERE nid = %d',$nid));
+}
+
+
+/**
+ * Implementation of hook_views_pre_view().
+ * Prepare the views argument for field_paper_ques_helper to use.
+ */
+function sxjmcomp_views_pre_view(&$view,&$display_id,&$args) {
+  //这里会有两种可能的情况:comp/team/%/paper/create 和 node/%/edit
+  if ($display_id == 'content_references_1') {
+    if(arg(0) == 'comp' && arg(1) == 'team' && arg(3) == 'paper' && arg(4) == 'create') {
+      //$compteam = arg($args[0]);
+      $compteam = arg(2);
+      $compteam_nid = sxjmcomp_team_get_nid($compteam);
+    } elseif(arg(0) == 'node' && arg(2) == 'edit') {
+      $comppaper_nid = arg(1);
+      $comppaper = node_load($comppaper_nid);
+      $compteam_nid = key($comppaper->og_groups);
+    }
+    //只有数字才是允许的
+    if(is_numeric($compteam_nid)) {
+      $args[0] = $compteam_nid;
+    }
+    else {
+      $args[0] = 0;
+    }
+
+  }
+}
+
+
+function sxjmcomp_set_breadcrumb($node,$isedit){
+  $breadcrumb = array();
+  if ($isedit) array_unshift($breadcrumb, l($node->title, "node/$node->nid"));
+  switch($node->type) {
+    case 'sxjmcomp':
+      array_unshift($breadcrumb, l('数模竞赛', 'comp/list'));
+      break;
+    case 'compques':
+      array_unshift($breadcrumb, l('竞赛赛题', 'comp/ques'));
+      break;
+    case 'compteam':
+      array_unshift($breadcrumb, l('参赛团队', 'comp/team'));
+      break;
+    case 'comppaper':
+      array_unshift($breadcrumb, l('参赛论文', 'comp/paper'));
+      break;
+  }
+  array_unshift($breadcrumb, l(t('Home'), NULL));
+  drupal_set_breadcrumb($breadcrumb);
+}

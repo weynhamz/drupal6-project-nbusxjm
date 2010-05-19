@@ -1,0 +1,124 @@
+<?php
+// $Id: sxjmbase.module $
+
+/**
+ * Implementation of hook_perm().
+ */
+function sxjmbase_perm() {
+  return array(
+    '管理数学建模基地',
+  );
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function sxjmbase_menu() {
+  $items = array();
+  $items['base'] = array (
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'sxjm',
+    'title' => '基地信息',
+    'description' => '数学建模',
+    'page callback' => 'sxjmbase_info',
+    'page arguments' => '',
+    'access callback' => TRUE,
+    'access arguments' => array(),
+    'weight' => 0,
+  );
+  $items['sxjm/base'] = array (
+    'type' => MENU_NORMAL_ITEM,
+    'title' => '基地管理',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmbase_info_list',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模基地'),
+    'weight' => 1,
+  );
+  $items['sxjm/base/info'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '基本信息',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/base/info/list'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '列表',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  $items['sxjm/base/info/add'] = array (
+    'type' => MENU_LOCAL_TASK,
+    'title' => '新增',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmbase_info_add',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模基地'),
+    'weight' => 1,
+  );
+  $items['sxjm/base/info/edit'] = array (
+    'type' => MENU_CALLBACK,
+    'title' => '编辑',
+    'description' => '配置数学建模相关设置',
+    'page callback' => 'sxjmbase_info_edit',
+    'page arguments' => '',
+    'access callback' => 'sxjmusers_access',
+    'access arguments' => array('管理数学建模基地'),
+    'weight' => 1,
+  );
+  $items['sxjm/base/info'] = array (
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => '基地信息',
+    'description' => '配置数学建模相关设置',
+    'weight' => 0,
+  );
+  return $items;
+}
+
+function sxjmbase_info() {
+  return '';
+}
+
+function sxjmbase_info_add() {
+  module_load_include('inc','node','node.pages');
+  return node_add('baseinfo');
+}
+
+function sxjmbase_info_list() {
+  return '';
+}
+
+/**
+ * Implementation of hook_form().
+ */
+function sxjmbase_form($node, $form_state){
+  $form = node_content_form($node, $form_state);
+  if (isset($form['body_field'])) $form['body_field']['body']['#rows'] = 5;
+  return $form;
+}
+
+/**
+ * Implementation of hook_node_info().
+ */
+function sxjmbase_node_info(){
+  $info['baseinfo']  = array (
+    'name' => '基地信息',
+    'help' => '',
+    'type' => 'baseinfo',
+    'module' => 'sxjmbase',
+    'description' => '',
+    'has_body' => 1,
+    'has_title' => 1,
+    'body_label' => '基地介绍',
+    'title_label' => '当前版本',
+    'custom' => 0,
+    'locked' => 0,
+    'modified' => 0,
+    'orig_type' => 'baseinfo',
+    'min_word_count' => '0',
+  );
+  //return $info;
+}

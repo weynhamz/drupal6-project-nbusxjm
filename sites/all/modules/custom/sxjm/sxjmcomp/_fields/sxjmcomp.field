@@ -1,0 +1,773 @@
+<?php
+$content['type']  = array (
+  'name' => '数模竞赛',
+  'type' => 'sxjmcomp',
+  'description' => '',
+  'title_label' => '竞赛标识',
+  'body_label' => '',
+  'min_word_count' => '0',
+  'help' => '',
+  'node_options' =>
+  array (
+    'status' => true,
+    'promote' => false,
+    'sticky' => false,
+    'revision' => false,
+  ),
+  'language_content_type' => '0',
+  'old_type' => 'sxjmcomp',
+  'orig_type' => 'sxjmcomp',
+  'module' => 'sxjmcomp',
+  'custom' => '0',
+  'modified' => '1',
+  'locked' => '0',
+  'reset' => 'Reset to defaults',
+  'og_content_type_usage' => 'omitted',
+  'og_max_groups' => '',
+  'better_formats_allowed' =>
+  array (
+    1 => false,
+    2 => false,
+    3 => false,
+  ),
+  'better_formats_defaults' =>
+  array (
+    'node-1' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-2' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-5' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'node-6' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-1' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-2' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-5' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+    'comment-6' =>
+    array (
+      'format' => '0',
+      'weight' => '0',
+    ),
+  ),
+);
+$content['fields']  = array (
+  0 =>
+  array (
+    'label' => '竞赛名称',
+    'field_name' => 'field_comp_name',
+    'type' => 'text',
+    'widget_type' => 'text_textfield',
+    'change' => 'Change basic information',
+    'weight' => '-4',
+    'rows' => 5,
+    'size' => '60',
+    'description' => '数学建模竞赛的正式名称，如“第一届宁波大学数学建模大赛”或者“第二届"某某杯" 宁波大学数学建模大赛”，请尽量保持命名的规范性和统一性。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_comp_name][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => NULL,
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '-4',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  1 =>
+  array (
+    'label' => '竞赛介绍',
+    'field_name' => 'field_comp_info',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-3',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '关于本次数学建模竞赛的比赛背景、意义、指导单位、奖项设置等的综合性介绍。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        'format' => '1',
+        '_error_element' => 'default_value_widget][field_comp_info][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_info' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          'format' => 1,
+          '_error_element' => 'default_value_widget][field_comp_info][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '-3',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  2 =>
+  array (
+    'label' => '竞赛须知',
+    'field_name' => 'field_comp_alter',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-2',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '关于本次数学建模竞赛需要向参赛队员解释和说明问题以及一些注意事项。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        'format' => '1',
+        '_error_element' => 'default_value_widget][field_comp_alter][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_alter' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          'format' => 1,
+          '_error_element' => 'default_value_widget][field_comp_alter][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '-1',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  3 =>
+  array (
+    'label' => '竞赛规则',
+    'field_name' => 'field_comp_rules',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-1',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '关于本次竞赛的正式的比赛规则，可能来自于比赛相关文件。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        'format' => '1',
+        '_error_element' => 'default_value_widget][field_comp_rules][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_rules' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          'format' => 1,
+          '_error_element' => 'default_value_widget][field_comp_rules][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '-2',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  4 =>
+  array (
+    'label' => '竞赛奖项',
+    'field_name' => 'field_comp_award',
+    'type' => 'text',
+    'widget_type' => 'text_textfield',
+    'change' => 'Change basic information',
+    'weight' => 0,
+    'rows' => 5,
+    'size' => '60',
+    'description' => '请在这里设定本次比赛的奖项，请尽量在初次创建时设定完毕，避免在比赛后期进行修改，一面引起不必要的问题。如果比赛后期需要修改相关奖项设置，请不要改变奖项原来的顺序，否则比赛已设定的比赛结果会出错。',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_comp_award][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_award' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_comp_award][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => 0,
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  5 =>
+  array (
+    'label' => '竞赛状态',
+    'field_name' => 'field_comp_state',
+    'type' => 'number_integer',
+    'widget_type' => 'number',
+    'change' => 'Change basic information',
+    'weight' => '1',
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_comp_state][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_state' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_comp_state][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'min' => '',
+    'max' => '',
+    'prefix' => '',
+    'suffix' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'number',
+    'widget_module' => 'number',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'int',
+        'not null' => false,
+        'sortable' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '1',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  6 =>
+  array (
+    'label' => '竞赛赛题',
+    'field_name' => 'field_comp_ques',
+    'type' => 'nodereference',
+    'widget_type' => 'nodereference_autocomplete',
+    'change' => 'Change basic information',
+    'weight' => '2',
+    'autocomplete_match' => 'contains',
+    'size' => '60',
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'nid' => NULL,
+        '_error_element' => 'default_value_widget][field_comp_ques][0][nid][nid',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_ques' =>
+      array (
+        0 =>
+        array (
+          'nid' =>
+          array (
+            'nid' => '',
+            '_error_element' => 'default_value_widget][field_comp_ques][0][nid][nid',
+          ),
+          '_error_element' => 'default_value_widget][field_comp_ques][0][nid][nid',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '1',
+    'referenceable_types' =>
+    array (
+      'compques' => 'compques',
+      'sxjmcomp' => 0,
+      'compteam' => 0,
+      'comppaper' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'op' => 'Save field settings',
+    'module' => 'nodereference',
+    'widget_module' => 'nodereference',
+    'columns' =>
+    array (
+      'nid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '2',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'views',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  7 =>
+  array (
+    'label' => '竞赛团队',
+    'field_name' => 'field_comp_team',
+    'type' => 'nodereference',
+    'widget_type' => 'nodereference_autocomplete',
+    'change' => 'Change basic information',
+    'weight' => '3',
+    'autocomplete_match' => 'contains',
+    'size' => '60',
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'nid' => NULL,
+        '_error_element' => 'default_value_widget][field_comp_team][0][nid][nid',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_comp_team' =>
+      array (
+        0 =>
+        array (
+          'nid' =>
+          array (
+            'nid' => '',
+            '_error_element' => 'default_value_widget][field_comp_team][0][nid][nid',
+          ),
+          '_error_element' => 'default_value_widget][field_comp_team][0][nid][nid',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '1',
+    'referenceable_types' =>
+    array (
+      'compteam' => 'compteam',
+      'sxjmcomp' => 0,
+      'comppaper' => 0,
+      'compques' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'op' => 'Save field settings',
+    'module' => 'nodereference',
+    'widget_module' => 'nodereference',
+    'columns' =>
+    array (
+      'nid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'weight' => '3',
+      'parent' => '',
+      'label' =>
+      array (
+        'format' => 'above',
+      ),
+      'teaser' =>
+      array (
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'views',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+);
+$content['extra']  = array (
+  'title' => '-5',
+  'revision_information' => '7',
+  'author' => '6',
+  'options' => '5',
+  'menu' => '4',
+  'path' => '8',
+);

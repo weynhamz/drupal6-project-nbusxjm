@@ -1,0 +1,192 @@
+/* $Id: sxjmusers.css*/
+table {
+  border: 1px solid #DDDDDD;
+}
+
+table th {
+  white-space: nowrap;
+}
+
+#sxjmusers-admin {
+  margin-top: 20px;
+}
+
+#sxjmusers-admin-filters-stauts {
+  float: left;
+  width: 100%;
+}
+
+#sxjmusers-admin-filters-status .form-item {
+  float: left;
+  width: 16%;
+  margin: 0.2em;
+}
+
+#sxjmusers-admin-filters-status .form-item .form-select {
+  width: 100%;
+}
+#sxjmusers-admin-filters-search {
+  float: left;
+  width: 100%;
+}
+#sxjmusers-admin-filters-search .form-item{
+  float: left;
+  width: 50%;
+}
+#sxjmusers-admin-filters-search .form-item label {
+  float: left;
+}
+#sxjmusers-admin-filters-search .form-item input.form-text {
+  width: 80% !important;
+}
+#sxjmusers-admin-filters-fields {
+  float: left;
+  width: 100%;
+}
+
+#sxjmusers-admin-filters-fields .form-checkboxes .form-item {
+  float: left;
+  width: 8em;
+}
+
+#sxjmusers-admin-filters-categories {
+  float: left;
+  width: 100%;
+}
+
+#sxjmusers-admin-filters-categories .form-radios .form-item {
+  float: left;
+  width: 8em;
+}
+
+#sxjmusers-admin-filters-buttons {
+  float: left;
+  width: 100%;
+}
+
+fieldset#sxjmusers-realinfo input {
+  width: 92.5% !important;
+}
+
+fieldset#sxjmusers-personal div {
+  float: left;
+}
+
+fieldset#sxjmusers-personal div.form-radios {
+  margin: 0px;
+}
+
+fieldset#sxjmusers-personal div.form-radios div.form-item {
+  margin: 0px !important;
+}
+
+fieldset#sxjmusers-personal div.description {
+  clear: left;
+}
+
+fieldset#sxjmusers-personal div#edit-realname-wrapper {
+  width: 20%;
+}
+
+fieldset#sxjmusers-personal div#edit-birthday-wrapper {
+  width: 40%;
+  margin-right: 1em;
+}
+
+fieldset#sxjmusers-personal div#edit-gender-0-wrapper {
+  width: 50%;
+}
+
+fieldset#sxjmusers-personal div#edit-gender-1-wrapper {
+  width: 50%;
+}
+
+fieldset#sxjmusers-academic div {
+  float: left;
+}
+
+fieldset#sxjmusers-academic div#edit-college-wrapper {
+  width: 15%;
+}
+
+fieldset#sxjmusers-academic div#edit-major-wrapper {
+  width: 85%;
+}
+
+fieldset#sxjmusers-contact div {
+  float: left;
+}
+
+fieldset#sxjmusers-contact div#edit-phone-wrapper {
+  width: 50%;
+}
+
+fieldset#sxjmusers-contact div#edit-address-wrapper {
+  width: 50%;
+}
+
+fieldset#sxjmusers-mphone div {
+  float: left;
+}
+
+fieldset#sxjmusers-mphone div#edit-mphone-service-wrapper {
+  width: 15%;
+}
+
+fieldset#sxjmusers-mphone div#edit-mphone-long-wrapper {
+  width: 42.5%;
+}
+
+fieldset#sxjmusers-mphone div#edit-mphone-short-wrapper {
+  width: 42.5%;
+}
+#sxjmusers-admin-filters-search-quittime {
+  /*clear: left !important;*/
+  float:left;
+  width:50%;
+  margin:1em 0em;
+}
+#sxjmusers-admin-filters-search-quittime div {
+  float: left;
+}
+#sxjmusers-admin-filters-search-quittime label {
+  float: left;
+  font-weight:bold;
+  padding-top:0.2em;
+}
+#sxjmusers-admin-filters-search-quittime-seperator {
+  float: left;
+  font-weight:bold;
+  margin-left:2.5em;
+  margin-right:2.5em;
+  padding-top:0.2em;
+}
+#sxjmusers-admin-filters-search-quittime input {
+  width: 100% !important;
+}
+#edit-search-quit-time-min-wrapper {
+  margin: 0 !important;
+  width: 30% !important;
+}
+#edit-search-quit-time-max-wrapper {
+  margin: 0 !important;
+  width: 30% !important;
+}
+#edit-sxjmusers-reg-status-wrapper label {
+  display:block;
+  float:left;
+  padding-top:0.3em;
+  margin-right:1em;
+}
+#edit-sxjmusers-reg-status-wrapper select {
+  width: 80px;
+}
+#edit-sxjmusers-time-limit-wrapper label {
+  display:block;
+  float:left;
+  padding-top:0.3em;
+  margin-right:1em;
+}
+#edit-sxjmusers-time-limit-wrapper select {
+  width: 80px;
+}

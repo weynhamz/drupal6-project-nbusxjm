@@ -1,0 +1,240 @@
+<?php
+/**
+ * Implementation of hook_install()
+ */
+function sxjmusers_install() {
+  $created = drupal_install_schema('sxjmusers');
+  if ($created) {
+    drupal_set_message(t('数学建模用户管理模块安装成功。'));
+  } else {
+    drupal_set_message(t('数学建模用户管理模块数据库建立失败，您需要手动建立相关数据库。'), 'error');
+  }
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function sxjmusers_uninstall() {
+  $deleted = drupal_uninstall_schema('sxjmusers');
+  if ($deleted) {
+    drupal_set_message(t('数学建模用户管理模块卸载成功。'));
+  } else {
+    drupal_set_message(t('数学建模用户管理模块数据库删除失败，您需要手动删除相关数据库。'), 'error');
+  }
+}
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function sxjmusers_enable() {
+  //Add roles
+  $roles = sxjmusers_role_define();
+  sxjmusers_role_operate('create',$roles);
+  //Grant default permissions to role
+  $role_permissions = sxjmusers_role_permissions();
+  foreach($role_permissions as $key => $value) {
+    sxjmusers_role_permissions_grant($value,$key);
+  }
+  //Add titles
+  $titles = sxjmusers_title_define();
+  sxjmusers_title_operate('create',$titles);
+  //Grant title based permissions
+  $title_roles = sxjmusers_title_roles();
+  foreach($title_roles as $title => $roles) {
+    sxjmusers_title_roles_grant($roles,$title);
+  }
+}
+
+
+/**
+ * Implementation of hook_disable().
+ */
+function sxjmusers_disable() {
+  //Delete roles
+  $titles = sxjmusers_title_define();
+  sxjmusers_title_operate('delete',$titles);
+  //Delete titles
+  $titles = sxjmusers_title_define();
+  sxjmusers_title_operate('delete',$titles);
+}
+
+function sxjmusers_schema() {
+  $schema['sxjmusers'] = array(
+    'fields' => array(
+      'iid'  => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('主键'),
+      ),
+      'uid'  => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('UID'),
+      ),
+      'realname' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('姓名'),
+      ),
+      'gender' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('性别'),
+      ),
+      'birthday' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('生日'),
+      ),
+      'college' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('学院'),
+      ),
+      'major' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('专业'),
+      ),
+      'phone' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('电话'),
+      ),
+      'address' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('地址'),
+      ),
+      'mphone_service' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('手机接入'),
+      ),
+      'mphone_long' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('手机长号'),
+      ),
+      'mphone_short' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('虚拟短号'),
+      ),
+      'reg_year' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => t('注册学年'),
+      ),
+      'quit_time' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => t('退会时间'),
+      ),
+      'current_state' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'description' => t('会员状态'),
+      ),
+    ),
+    'indexes' => array('uid' => array('uid')),
+    'primary key' => array('iid'),
+  );
+  $schema['sxjmusers_title'] = array(
+    'fields' => array(
+      'tid'  => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('主键'),
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('名称'),
+      ),
+      'roles' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('角色集'),
+      ),
+    ),
+    'indexes' => array('tid' => array('tid')),
+    'primary key' => array('tid'),
+  );
+  $schema['sxjmusers_title_users'] = array(
+    'fields' => array(
+      'tid'  => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t('主键'),
+      ),
+      'uid'  => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t('UID'),
+      ),
+    ),
+    'indexes' => array('tid' => array('tid')),
+    'primary key' => array('tid','uid'),
+  );
+  return $schema;
+}
+
+function sxjmusers_role_define() {
+  return array('会员浏览','会员管理');
+}
+
+function sxjmusers_role_permissions() {
+  $return = array(
+    '会员浏览' => array('access user profiles','查看数学建模用户'),
+    '会员管理' => array('administer users','管理数学建模用户'),
+  );
+  return $return;
+}
+
+function sxjmusers_title_define() {
+  return array('数模会员','初级会员','高级会员','部门理事','部门副部长','部门部长','协会副会长','协会会长','指导老师');
+}
+
+function sxjmusers_title_roles() {
+  return array(
+    '数模会员' => array('会员浏览'),
+    '协会会长' => array('会员管理'),
+    '指导老师' => array('会员管理'),
+  );
+}

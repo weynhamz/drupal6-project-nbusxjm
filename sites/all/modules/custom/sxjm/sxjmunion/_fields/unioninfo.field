@@ -1,0 +1,535 @@
+<?php
+$content['fields']  = array (
+  0 =>
+  array (
+    'label' => '协会历史',
+    'field_name' => 'field_history',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-3',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_history][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => NULL,
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      5 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  1 =>
+  array (
+    'label' => '协会荣誉',
+    'field_name' => 'field_honor',
+    'type' => 'text',
+    'widget_type' => 'text_textarea',
+    'change' => 'Change basic information',
+    'weight' => '-2',
+    'rows' => '5',
+    'size' => 60,
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_honor][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_honor' =>
+      array (
+        0 =>
+        array (
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_honor][0][value',
+          'format' => 1,
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' =>
+    array (
+      'value' =>
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+      'format' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'views' => false,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      5 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  2 =>
+  array (
+    'label' => '协会会长',
+    'field_name' => 'field_master',
+    'type' => 'userreference',
+    'widget_type' => 'userreference_buttons',
+    'change' => 'Change basic information',
+    'weight' => '-1',
+    'autocomplete_match' => 'contains',
+    'size' => 60,
+    'reverse_link' => 0,
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'uid' => '',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_master' =>
+      array (
+        0 =>
+        array (
+          'uid' => '',
+        ),
+        'uid' =>
+        array (
+          'uid' => '',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'referenceable_roles' =>
+    array (
+      2 => 0,
+      3 => 0,
+      4 => 0,
+    ),
+    'referenceable_status' => '',
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'op' => 'Save field settings',
+    'module' => 'userreference',
+    'widget_module' => 'userreference',
+    'columns' =>
+    array (
+      'uid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      5 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  3 =>
+  array (
+    'label' => '组织结构',
+    'field_name' => 'field_struture',
+    'type' => 'nodereference',
+    'widget_type' => 'nodereference_buttons',
+    'change' => 'Change basic information',
+    'weight' => 0,
+    'autocomplete_match' => 'contains',
+    'size' => 60,
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'nid' => '',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_struture' =>
+      array (
+        0 =>
+        array (
+          'nid' => '',
+        ),
+        'nid' =>
+        array (
+          'nid' =>
+          array (
+            '' => 1,
+            3 => false,
+            1 => false,
+          ),
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 1,
+    'multiple' => '1',
+    'referenceable_types' =>
+    array (
+      'department' => 'department',
+      'blog' => 0,
+      'book' => 0,
+      'forum' => 0,
+      'page' => 0,
+      'poll' => 0,
+      'story' => 0,
+      'unioninfo' => 0,
+      'baseinfo' => 0,
+      'document' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'op' => 'Save field settings',
+    'module' => 'nodereference',
+    'widget_module' => 'nodereference',
+    'columns' =>
+    array (
+      'nid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      5 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  4 =>
+  array (
+    'label' => '协会活动',
+    'field_name' => 'field_event',
+    'type' => 'nodereference',
+    'widget_type' => 'nodereference_buttons',
+    'change' => 'Change basic information',
+    'weight' => '1',
+    'autocomplete_match' => 'contains',
+    'size' => 60,
+    'description' => '',
+    'default_value' =>
+    array (
+      0 =>
+      array (
+        'nid' => '',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' =>
+    array (
+      'field_event' =>
+      array (
+        0 =>
+        array (
+          'nid' => '',
+        ),
+        'nid' =>
+        array (
+          'nid' => '',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 1,
+    'multiple' => '0',
+    'referenceable_types' =>
+    array (
+      'document' => 'document',
+      'blog' => 0,
+      'book' => 0,
+      'forum' => 0,
+      'page' => 0,
+      'poll' => 0,
+      'story' => 0,
+      'unioninfo' => 0,
+      'department' => 0,
+      'baseinfo' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'op' => 'Save field settings',
+    'module' => 'nodereference',
+    'widget_module' => 'nodereference',
+    'columns' =>
+    array (
+      'nid' =>
+      array (
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => false,
+        'index' => true,
+      ),
+    ),
+    'display_settings' =>
+    array (
+      'label' =>
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      5 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'teaser' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' =>
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+);
+$content['extra']  = array (
+  'title' => '-5',
+  'body_field' => '-4',
+  'revision_information' => '5',
+  'author' => '6',
+  'options' => '4',
+  'comment_settings' => '7',
+  'menu' => '3',
+  'book' => '2',
+  'path' => '8',
+);
