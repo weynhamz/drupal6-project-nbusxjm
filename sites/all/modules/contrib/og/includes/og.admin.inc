@@ -5,32 +5,6 @@
  * Menu callback to load settings form.
  */
 function og_admin_settings() {
-  // content types
-  $is_configured = count(og_get_types('group')) && count(og_get_types('group_post'));
-  if (!$is_configured) {
-    form_set_error('content_types_table', t('You must designate at least one content type to act as a group node and another as a group post. <a href="!create">Create new content type</a> if needed.', array('!create' => url('admin/content/types/add', array('query' => drupal_get_destination())))));
-  }
-  $form['content_types'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Content types'),
-    '#description' => t('You may <a href="!create">create new content types</a> as needed. Note that you may have multiple types acting as groups and multiple types are allowed as group posts.', array('!create' => url('admin/content/types/add', array('query' => drupal_get_destination())))),
-    '#collapsible' => TRUE,
-    '#collapsed' => $is_configured,
-  );
-  $map = og_types_map();
-  $header = array(t('Type'), t('Usage'), t('Operations'));
-  $rows = array();
-  foreach (node_get_types() as $type) {
-    $type_url_str = str_replace('_', '-', $type->type);
-    $usage = variable_get('og_content_type_usage_'. $type->type, 'omitted');
-    $rows[] = array(
-      $type->name,
-      $map[$usage],
-      l(t('Edit'), "admin/content/node-type/$type_url_str", array('query' => drupal_get_destination())),
-    );
-  }
-  $form['content_types']['content_types_table'] = array('#value' => theme('table', $header, $rows));
-
 
   $form['group_details'] = array(
     '#type' => 'fieldset',
@@ -187,4 +161,30 @@ function og_admin_settings() {
   );
 
   return system_settings_form($form);
+}
+
+function og_summarize() {
+  // content types
+  $is_configured = count(og_get_types('group')) && count(og_get_types('group_post'));
+
+  if (!$is_configured) {
+    drupal_set_message(t('You must designate at least one content type to act as a group node and another as a group post. <a href="!create">Create new content type</a> if needed.', array('!create' => url('admin/content/types/add', array('query' => drupal_get_destination())))),'warning',TRUE);
+  }
+
+  $output = t('You may <a href="!create">create new content types</a> as needed. Note that you may have multiple types acting as groups and multiple types are allowed as group posts.', array('!create' => url('admin/content/types/add', array('query' => drupal_get_destination()))));
+  $map = og_types_map();
+  $header = array(t('Type'), t('Usage'), t('Operations'));
+  $rows = array();
+  foreach (node_get_types() as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $usage = variable_get('og_content_type_usage_'. $type->type, 'omitted');
+    $rows[] = array(
+      $type->name,
+      $map[$usage],
+      l(t('Edit'), "admin/content/node-type/$type_url_str", array('query' => drupal_get_destination())),
+    );
+  }
+  $output .= theme('table', $header, $rows);
+
+  return $output;
 }
