@@ -425,21 +425,21 @@ function sxjmusers_get_basetitle($account) {
 }
 
 /**
- * Get the sxjmusers role of a given uid.
+ * Get the sxjmusers base title id of a given uid.
  *
  * @param int $uid
  *  user uid
  * @return string
- *  sxjmusers role
+ *  sxjmusers base title
  */
-function sxjmusers_get_role_from_uid($uid) {
-  $teacher_role_id = sxjmusers_get_role_id('指导老师');
-  $student_role_id = sxjmusers_get_role_id('数模会员');
-  $result = db_query("SELECT ur.rid FROM {users_roles} ur WHERE ur.uid=%d", $uid);
-  while ($role = db_fetch_object($result)) {
-    if ($role->rid == $teacher_role_id) {
+function sxjmusers_get_basetitle_from_uid($uid) {
+  $teacher_title_id = sxjmusers_get_title_id('指导老师');
+  $student_title_id = sxjmusers_get_title_id('数模会员');
+  $result = db_query("SELECT stu.tid FROM {sxjmusers_title_users} stu WHERE stu.uid = %d", $uid);
+  while ($title = db_fetch_object($result)) {
+    if ($title->tid == $teacher_title_id) {
       return '指导老师';
-    } elseif ($role->rid == $student_role_id) {
+    } elseif ($title->tid == $student_title_id) {
       return '数模会员';
     } else {
       return FALSE;
