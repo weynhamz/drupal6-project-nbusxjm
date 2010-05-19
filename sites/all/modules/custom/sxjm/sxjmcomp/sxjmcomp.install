@@ -36,9 +36,6 @@ function sxjmcomp_enable() {
   foreach($role_perms as $role => $perms) {
     sxjmusers_role_perms_grant($role,$perms);
   }
-  //Add titles
-  $titles = sxjmusers_title_define();
-  sxjmusers_title_operate('create',$titles);
   //Grant title based permissions
   $title_roles = sxjmcomp_title_roles();
   foreach($title_roles as $title => $roles) {

@@ -30,6 +30,36 @@ function sxjmlegal_uninstall() {
 
 
 /**
+ * Implementation of hook_enable().
+ */
+function sxjmlegal_enable() {
+  //Add roles
+  $roles = sxjmlegal_role_define();
+  sxjmusers_role_operate('create',$roles);
+  //Grant default permissions to role
+  $role_perms = sxjmlegal_role_perms();
+  foreach($role_perms as $role => $perms) {
+    sxjmusers_role_perms_grant($role,$perms);
+  }
+  //Grant title based permissions
+  $title_roles = sxjmlegal_title_roles();
+  foreach($title_roles as $title => $roles) {
+    sxjmusers_title_roles_grant($title,$roles);
+  }
+}
+
+
+/**
+ * Implementation of hook_disable().
+ */
+function sxjmlegal_disable() {
+  //Delete roles
+  $roles = sxjmlegal_role_define();
+  sxjmusers_role_operate('delete',$roles);
+}
+
+
+/**
  * Implementation of hook_schema().
  */
 function sxjmlegal_schema() {
@@ -59,3 +89,21 @@ function sxjmlegal_schema() {
   return $schema;
 }
 
+
+function sxjmlegal_role_define() {
+  return array('协议管理');
+}
+
+function sxjmlegal_role_perms() {
+  $return = array(
+    '协议管理' => array('管理用户使用协议'),
+  );
+  return $return;
+}
+
+function sxjmlegal_title_roles() {
+  return array(
+    '协会会长' => array('协议管理'),
+    '指导老师' => array('协议管理'),
+  );
+}
