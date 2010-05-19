@@ -777,6 +777,8 @@ function sxjmusers_operations_block($accounts) {
     if ($account !== FALSE && $account->current_state >= SXJMUSERS_STATE_ACTIVE) {
       user_save($account, array('current_state' =>  SXJMUSERS_STATE_BLOCK),'个人资料');
     }
+    //取消和用户身份相应的系统角色，从而限制用户的权限
+    sxjmusers_title_perms_remove($uid);
   }
 }
 
@@ -789,6 +791,8 @@ function sxjmusers_operations_unblock($accounts) {
     if ($account !== FALSE && $account->current_state == SXJMUSERS_STATE_BLOCK) {
       user_save($account, array('current_state' =>  SXJMUSERS_STATE_ACTIVE),'个人资料');
     }
+    //根据用户的身份，赋予一定的角色，从而具有相应的权限
+    sxjmusers_title_perms_rebuild($uid);
   }
 }
 
@@ -821,6 +825,8 @@ function sxjmusers_operations_review($accounts) {
     if ($account !== FALSE) {
       user_save($account, array('current_state' =>  SXJMUSERS_STATE_REVIEW),'个人资料');
     }
+    //取消和用户身份相应的系统角色，从而限制用户的权限
+    sxjmusers_title_perms_remove($uid);
   }
 }
 
@@ -833,6 +839,8 @@ function sxjmusers_operations_confirm($accounts) {
     if ($account !== FALSE && $account->current_state ==  SXJMUSERS_STATE_CONFIRM) {
       user_save($account, array('current_state' =>  SXJMUSERS_STATE_ACTIVE),'个人资料');
     }
+    //根据用户的身份，赋予一定的角色，从而具有相应的权限
+    sxjmusers_title_perms_rebuild($uid);
   }
 }
 
