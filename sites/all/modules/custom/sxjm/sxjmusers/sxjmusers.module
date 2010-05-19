@@ -527,18 +527,18 @@ function sxjmusers_title_roles_grant($new,$title) {
 }
 
 function sxjmusers_title_permissions_rebuild() {
-  $result = db_query('SELECT tid,roles FROM {sxjmusers_title}');
+  $titles = db_query('SELECT tid,roles FROM {sxjmusers_title}');
 
-  $titles = array();
-  while ($title = db_fetch_object($result)) {
-    $titles[$title->tid] = explode(', ',$title->roles);
+  $titles_roles = array();
+  while ($title = db_fetch_object($titles)) {
+    $titles_roles[$title->tid] = explode(', ',$title->roles);
   }
-  $titles = array_filter($titles);
+  $titles_roles = array_filter($titles_roles);
 
   $result = db_query("SELECT * FROM {sxjmusers_title_users}");
 
   while ($row = db_fetch_object($result)) {
-    sxjmusers_roles_add($row->uid,$titles[$row->tid]);
+    sxjmusers_roles_add($row->uid,$titles_roles[$row->tid]);
   }
 }
 
