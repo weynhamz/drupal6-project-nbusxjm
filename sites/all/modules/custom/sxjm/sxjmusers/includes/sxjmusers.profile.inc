@@ -21,7 +21,7 @@ function sxjmusers_view(&$account) {
   );
   $counter = 0;
   foreach ($fields as $k => $v) {
-    if ($k == 'name' || $k == 'mail' || $k == 'rid') {
+    if ($k == 'name' || $k == 'mail' || $k == 'tid') {
       continue;
     }
     if($k == 'gender') {
@@ -269,18 +269,18 @@ function sxjmusers_realinfo_save(&$edit, $account, $category, $is_update = FALSE
     $fields = sxjmusers_fields();
     $fields_name = array_keys($fields);
     foreach($fields as $name => $field) {
-      if ($name == 'name' || $name == 'mail' || $name == 'rid') {
+      if ($name == 'name' || $name == 'mail' || $name == 'tid') {
         continue;
       }
       $fields_type[]= $field['type'];
     }
     foreach ($fields_name as $key => $name) {
-      if ($name == 'name' || $name == 'mail' || $name == 'rid') {
+      if ($name == 'name' || $name == 'mail' || $name == 'tid') {
         unset($fields_name[$key]);
         continue;
       }
       if(!isset($edit[$name]) && !$is_update) {
-        if ($name != 'uid' && $name != 'rid' && $name != 'reg_year' && $name != 'quit_time' && $name != 'current_state') {
+        if ($name != 'uid' && $name != 'tid' && $name != 'reg_year' && $name != 'quit_time' && $name != 'current_state') {
           form_set_error($name,t("出现错误，这不是更新表单，但是 $name 项未设置！"));
         }
       }

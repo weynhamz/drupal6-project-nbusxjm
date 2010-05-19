@@ -38,7 +38,7 @@ function sxjmusers_filters_form($form) {
   $fields_default = array(
     'name' => 'name',
     'mail' => '',
-    'rid' => 'rid',
+    'tid' => 'tid',
     'realname'=> 'realname',
     'gender' => 'gender',
     'birthday' => '',
@@ -214,8 +214,8 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
       $header[] = array('data' => $fields[$key]['label'],'field' => 'u.' . $key);
     } elseif ($key == 'mail') {
       $header[] = array('data' => $fields[$key]['label'],'field' => 'u.' . $key);
-    } elseif ($key == 'rid') {
-      $header[] = array('data' => $fields[$key]['label'],'field' => 'ur.' . $key);
+    } elseif ($key == 'tid') {
+      $header[] = array('data' => $fields[$key]['label'],'field' => 'st.' . $key);
     } else {
       $header[] = array('data' => $fields[$key]['label'],'field' => 'su.' . $key);
     }
@@ -262,7 +262,7 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
     '#value' => t('Update'),
   );
 
-  $roles = user_roles();
+  $titles = sxjmusers_titles();
   $genders = sxjmusers_get_genders();
   $colleges = sxjmusers_get_colleges();
   $mphone_service = sxjmusers_get_mobile_services();
@@ -279,8 +279,8 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
         case 'name':
           $form[$key][$sxjmuserss->uid] = array('#value'=>l($sxjmuserss->name, 'user/'. $sxjmuserss->uid, array('html' => TRUE)));
           break;
-        case 'rid':
-          $form[$key][$sxjmuserss->uid] = array('#value'=>$roles[$sxjmuserss->rid]);
+        case 'tid':
+          $form[$key][$sxjmuserss->uid] = array('#value'=>$titles[$sxjmuserss->tid]);
           break;
         case 'gender':
           $form[$key][$sxjmuserss->uid] = array('#value'=>$genders[$sxjmuserss->gender]);
@@ -374,8 +374,8 @@ function sxjmusers_field_query_build() {
     if (!$value['display']) continue;
     if ($key == 'name' || $key == 'mail') {
       $fields_sql .= ', u.' . $key;
-    } elseif ($key == 'rid') {
-      $fields_sql .= ', ur.' . $key;
+    } elseif ($key == 'tid') {
+      $fields_sql .= ', st.' . $key;
     } else {
       $fields_sql .= ', su.' . $key;
     }
@@ -493,11 +493,11 @@ function sxjmusers_fields($title=NULL) {
       'display'=>!empty($field_session)?$field_session['mail']:FALSE,
       'weight'=>'10',
       ),
-    'rid'=>array(
+    'tid'=>array(
       'type'=>'%d',
       'label'=>t('身份'),
       'description'=> t('您的身份'),
-      'display'=>!empty($field_session)?$field_session['rid']:TRUE,
+      'display'=>!empty($field_session)?$field_session['tid']:TRUE,
       'weight'=>'2',
       ),
     'realname'=>array(
@@ -616,12 +616,12 @@ function sxjmusers_options() {
     'options' => $genders,
   );
 
-  $roles = user_roles();
+  $titles = sxjmusers_titles();
 
-  $filters['role'] = array(
+  $filters['title'] = array(
     'title' => t('身份'),
     'where' => "stu.tid = %d",
-    'options' => $roles,
+    'options' => $titles,
   );
 
   $colleges = sxjmusers_get_colleges();
@@ -933,8 +933,8 @@ function theme_sxjmusers_accounts($form) {
       $header[] = array('data' => '学号','field' => 'u.' . $key);
     } elseif ($key == 'mail') {
       $header[] = array('data' => '邮箱','field' => 'u.' . $key);
-    } elseif ($key == 'rid') {
-      $header[] = array('data' => '身份','field' => 'ur.' . $key);
+    } elseif ($key == 'tid') {
+      $header[] = array('data' => '身份','field' => 'st.' . $key);
     } else {
       $header[] = array('data' => $fields[$key]['label'],'field' => 'su.' . $key);
     }
