@@ -178,6 +178,7 @@ function sxjmusers_register_rebuild ($form, &$form_state) {
   if ($form_state['clicked_button']['#id'] == 'edit-previous') {
     $form['#post'] = '';
     $form_state['rebuild'] = TRUE;
+    $form_state['process_input'] = TRUE;
     $form_state['storage']['current_step']--;
     $form_state['storage']['step'][$current_step]['values'] = $form_state['values'];
 //     保留每一步的 $form 是否有意义需要重新考虑
