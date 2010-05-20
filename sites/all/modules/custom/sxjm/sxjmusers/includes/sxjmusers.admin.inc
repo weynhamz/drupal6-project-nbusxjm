@@ -228,7 +228,7 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
   $filter_sql = sxjmusers_status_query_build();
   $search_sql = sxjmusers_search_query_build();
 
-  if(!empty($search_sql['where'])) $search_sql['where'] = 'AND ' . $search_sql['where'];
+  if(!empty($search_sql['where']) && !empty($filter_sql['where'])) $search_sql['where'] = 'AND ' . $search_sql['where'];
 
   $sql = 'SELECT su.uid' . $fields_sql . ' FROM {sxjmusers} su';
   $sql .= ' INNER JOIN {users} u ON su.uid = u.uid';
