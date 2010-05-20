@@ -288,7 +288,7 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
  *  Ture if it is a sxjmusers,otherwise not
  */
 function is_sxjmusers($uid) {
-  return db_result(db_query("SELECT uid FROM {sxjmusers} WHERE uid = $uid"));
+  return sxjmusers_get_basetitle_from_uid($uid);
 }
 
 /**
