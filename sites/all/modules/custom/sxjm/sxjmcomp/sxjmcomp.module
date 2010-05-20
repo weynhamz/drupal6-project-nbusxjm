@@ -995,6 +995,8 @@ function sxjmcomp_reference_delete(&$object_a) {
 
   $reference_info = sxjmcomp_reference_info();
 
+  if(!isset($reference_info[$object_a->type])) return;
+
   list($field_a2b,$field_b2a) = each($reference_info[$object_a->type]);
 
   if(!empty($field_a2b) && !empty($field_b2a)) {
@@ -1026,6 +1028,8 @@ function sxjmcomp_reference_update(&$object_a) {
   $field_a2b = $field_b2a = '';
 
   $reference_info = sxjmcomp_reference_info();
+
+  if(!isset($reference_info[$object_a->type])) return;
 
   list($field_a2b,$field_b2a) = each($reference_info[$object_a->type]);
 
