@@ -1,4 +1,4 @@
-Drupal.behaviors.sxjmusers = function (context) {
+Drupal.behaviors.sxjmusers_datepicker = function (context) {
   // 生日选择使用 jqury.ui.datepicker
   $('input.datepicker').datepicker({
     showOn: 'both',
