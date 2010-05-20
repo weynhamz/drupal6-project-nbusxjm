@@ -235,10 +235,12 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
   $sql .= ' INNER JOIN {sxjmusers_title_users} stu ON su.uid = stu.uid';
   $sql .= ' INNER JOIN {sxjmusers_title} st ON stu.tid = st.tid';
 
+  if(!empty($search_sql['where']) || !empty($filter_sql['where'])) $where = " WHERE ";
+
   if($print) {
-    $result = db_query($sql . " WHERE " . $filter_sql['where'] . $search_sql['where'] . $tablesort, array_merge($filter_sql['args'],$search_sql['args']));
+    $result = db_query($sql . $where . $filter_sql['where'] . $search_sql['where'] . $tablesort, array_merge($filter_sql['args'],$search_sql['args']));
   } else {
-    $result = pager_query($sql . " WHERE " . $filter_sql['where'] . $search_sql['where'] . $tablesort, 50, 0, NULL, array_merge($filter_sql['args'],$search_sql['args']));
+    $result = pager_query($sql . $where . $filter_sql['where'] . $search_sql['where'] . $tablesort, 50, 0, NULL, array_merge($filter_sql['args'],$search_sql['args']));
   }
 
   $form['options'] = array(
