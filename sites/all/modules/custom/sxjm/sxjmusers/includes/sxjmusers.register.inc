@@ -33,7 +33,8 @@ function sxjmusers_register($form_state) {
   $admin = user_access('administer users');
   $current_step = $form_state['storage']['current_step'];
   if (!isset($current_step)) {
-    if ($admin) {
+    $conditions = sxjmlegal_get_conditions();
+    if ($admin || empty($conditions)) {
       $current_step = $form_state['storage']['current_step'] = 2;
     } else {
       if(!variable_get('sxjmusers_reg_status',0)) {
@@ -177,6 +178,7 @@ function sxjmusers_register_rebuild ($form, &$form_state) {
   if ($form_state['clicked_button']['#id'] == 'edit-previous') {
     $form['#post'] = '';
     $form_state['rebuild'] = TRUE;
+    $form_state['process_input'] = TRUE;
     $form_state['storage']['current_step']--;
     $form_state['storage']['step'][$current_step]['values'] = $form_state['values'];
 //     保留每一步的 $form 是否有意义需要重新考虑
@@ -193,13 +195,13 @@ function sxjmusers_register_rebuild ($form, &$form_state) {
 
 
 function sxjmusers_register_submit($form, &$form_state) {
+  $current_step = $form_state['storage']['current_step'];
+
   if ($form_state['clicked_button']['#id'] == 'edit-next') {
 
     if (!isset($form_state['storage']['current_step'])) {
       $form_state['storage']['current_step'] = 1;
     }
-
-    $current_step = $form_state['storage']['current_step'];
 
     if ($current_step == sxjmusers_REG_STEP_ROLE && isset($form_state['storage']['step'][sxjmusers_REG_STEP_ROLE]) && isset($form_state['storage']['step'][sxjmusers_REG_STEP_REALINFO]) && $form_state['storage']['step'][sxjmusers_REG_STEP_ROLE]['values']['role'] != $form_state['values']['role']) {
       unset($form_state['storage']['step'][sxjmusers_REG_STEP_REALINFO]);

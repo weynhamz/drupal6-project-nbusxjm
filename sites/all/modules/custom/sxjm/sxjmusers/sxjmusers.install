@@ -29,6 +29,9 @@ function sxjmusers_uninstall() {
  * Implementation of hook_enable().
  */
 function sxjmusers_enable() {
+  //Add titles
+  $titles = sxjmusers_title_define();
+  sxjmusers_title_operate('create',$titles);
   //Add roles
   $roles = sxjmusers_role_define();
   sxjmusers_role_operate('create',$roles);
@@ -37,9 +40,6 @@ function sxjmusers_enable() {
   foreach($role_perms as $role => $perms) {
     sxjmusers_role_perms_grant($role,$perms);
   }
-  //Add titles
-  $titles = sxjmusers_title_define();
-  sxjmusers_title_operate('create',$titles);
   //Grant title based permissions
   $title_roles = sxjmusers_title_roles();
   foreach($title_roles as $title => $roles) {
@@ -52,12 +52,12 @@ function sxjmusers_enable() {
  * Implementation of hook_disable().
  */
 function sxjmusers_disable() {
-  //Delete roles
-  $titles = sxjmusers_title_define();
-  sxjmusers_title_operate('delete',$titles);
   //Delete titles
   $titles = sxjmusers_title_define();
   sxjmusers_title_operate('delete',$titles);
+  //Delete roles
+  $roles = sxjmusers_role_define();
+  sxjmusers_role_operate('delete',$roles);
 }
 
 function sxjmusers_schema() {
@@ -228,13 +228,23 @@ function sxjmusers_role_perms() {
 }
 
 function sxjmusers_title_define() {
-  return array('数模会员','初级会员','高级会员','部门理事','部门副部长','部门部长','协会副会长','协会会长','指导老师');
+  return array(
+    '指导老师',
+    '数模会员',
+    '初级会员',
+    '高级会员',
+    '部门理事',
+    '部门副部长',
+    '部门部长',
+    '协会副会长',
+    '协会会长'
+  );
 }
 
 function sxjmusers_title_roles() {
   return array(
     '数模会员' => array('会员浏览'),
     '协会会长' => array('会员管理'),
-    '指导老师' => array('会员管理'),
+    '指导老师' => array('会员浏览','会员管理'),
   );
 }

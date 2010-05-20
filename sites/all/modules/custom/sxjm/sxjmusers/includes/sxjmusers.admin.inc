@@ -90,7 +90,7 @@ function sxjmusers_filters_form($form) {
       '#type' => 'select',
       '#title' => $value['title'],
       '#options' => $value['options'],
-      '#multiple' => TRUE,
+      '#multiple' => ($key != 'title')?TRUE:FALSE,
     );
     if (!empty($status_session[$key])) {
       $form['filters']['status'][$key]['#default_value'] = $status_session[$key];
@@ -228,18 +228,19 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
   $filter_sql = sxjmusers_status_query_build();
   $search_sql = sxjmusers_search_query_build();
 
-  if(!empty($search_sql['where'])) $search_sql['where'] = 'AND ' . $search_sql['where'];
+  if(!empty($search_sql['where']) && !empty($filter_sql['where'])) $search_sql['where'] = 'AND ' . $search_sql['where'];
 
   $sql = 'SELECT su.uid' . $fields_sql . ' FROM {sxjmusers} su';
   $sql .= ' INNER JOIN {users} u ON su.uid = u.uid';
-  $sql .= ' INNER JOIN {users_roles} ur ON su.uid = ur.uid';
   $sql .= ' INNER JOIN {sxjmusers_title_users} stu ON su.uid = stu.uid';
   $sql .= ' INNER JOIN {sxjmusers_title} st ON stu.tid = st.tid';
 
+  if(!empty($search_sql['where']) || !empty($filter_sql['where'])) $where = " WHERE ";
+
   if($print) {
-    $result = db_query($sql . " WHERE " . $filter_sql['where'] . $search_sql['where'] . $tablesort, array_merge($filter_sql['args'],$search_sql['args']));
+    $result = db_query($sql . $where . $filter_sql['where'] . $search_sql['where'] . $tablesort, array_merge($filter_sql['args'],$search_sql['args']));
   } else {
-    $result = pager_query($sql . " WHERE " . $filter_sql['where'] . $search_sql['where'] . $tablesort, 50, 0, NULL, array_merge($filter_sql['args'],$search_sql['args']));
+    $result = pager_query($sql . $where . $filter_sql['where'] . $search_sql['where'] . $tablesort, 50, 0, NULL, array_merge($filter_sql['args'],$search_sql['args']));
   }
 
   $form['options'] = array(
@@ -262,7 +263,6 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
     '#value' => t('Update'),
   );
 
-  $titles = sxjmusers_titles();
   $genders = sxjmusers_get_genders();
   $colleges = sxjmusers_get_colleges();
   $mphone_service = sxjmusers_get_mobile_services();
@@ -280,7 +280,7 @@ function sxjmusers_accounts_form($form,$print = FALSE) {
           $form[$key][$sxjmuserss->uid] = array('#value'=>l($sxjmuserss->name, 'user/'. $sxjmuserss->uid, array('html' => TRUE)));
           break;
         case 'tid':
-          $form[$key][$sxjmuserss->uid] = array('#value'=>$titles[$sxjmuserss->tid]);
+          $form[$key][$sxjmuserss->uid] = array('#value'=>implode('<br />',sxjmusers_get_titles($sxjmuserss->uid)));
           break;
         case 'gender':
           $form[$key][$sxjmuserss->uid] = array('#value'=>$genders[$sxjmuserss->gender]);
@@ -405,6 +405,8 @@ function sxjmusers_status_query_build() {
   foreach ( $sxjmusers_filter as $key => $filter) {
     $filter_where = array();
     if(empty($filter)) $filter = array();
+    //titlle filter is not a multiple select boxes.
+    if($key == 'title') $filter = array($filter);
     //multiple select boxes.
     foreach ($filter as $value) {
       if($value == '--none--') continue;

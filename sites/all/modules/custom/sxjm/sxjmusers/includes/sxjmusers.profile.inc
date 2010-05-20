@@ -380,6 +380,7 @@ function sxjmusers_admin_title($uid) {
 function sxjmusers_admin_title_save($edit, $account, $category) {
   $title = array_filter($edit['titles']);
   sxjmusers_title_add($edit['uid'],$title);
+  sxjmusers_title_perms_rebuild($edit['uid']);
 }
 
 function sxjmusers_admin_title_validate($form,&$form_state) {

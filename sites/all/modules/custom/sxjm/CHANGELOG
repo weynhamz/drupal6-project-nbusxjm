@@ -2,6 +2,11 @@ Sxjm-1.x-dev, xxxx-xx-xx
 
 * sxjmusers 模块
   ** 2010-5-18 修复sxjmusers模块scripts/sxjmusers.datepicker.js中模块路径传值问题
+  ** 2010-5-19 如果暂未设定用户协议，则注册表单省略相应步骤
+  ** 2010-5-19 修复sxjmusers引入身份系统后产生的一系列问题
+
+* sxjmcomp 模块
+  ** 2010-5-19 pathauto模块支持，模块安装时为模块提供的节点类添加路径模式
 
 Sxjm-1.0-release 2010-05-18
 
