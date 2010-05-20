@@ -228,7 +228,17 @@ function sxjmusers_role_perms() {
 }
 
 function sxjmusers_title_define() {
-  return array('数模会员','初级会员','高级会员','部门理事','部门副部长','部门部长','协会副会长','协会会长','指导老师');
+  return array(
+    '指导老师',
+    '数模会员',
+    '初级会员',
+    '高级会员',
+    '部门理事',
+    '部门副部长',
+    '部门部长',
+    '协会副会长',
+    '协会会长'
+  );
 }
 
 function sxjmusers_title_roles() {
