@@ -1,0 +1,32 @@
+#wrapper {
+  width: 100%;
+  min-height: 100%; /* 使 #footer 总位于页面底部 */
+}
+* html #wrapper {
+  height: 100%;
+}
+#header {
+  position: relative; /* 为 mission 和 search-form 提供相对于父元素的绝对定位 */
+}
+#container {
+}
+#container-header {
+}
+/* 三列布局，中间宽度自适应 */
+#container-middle {
+}
+#container-middle-left {
+  float: left;
+  width: 240px;
+}
+#container-middle-main {
+  margin: 0px 180px 0px 240px; /*中间宽度自适应*/
+}
+#container-middle-right {
+  float: right;
+  width: 180px;
+}
+#container-footer {
+}
+#footer {
+}
