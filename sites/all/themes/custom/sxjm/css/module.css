@@ -20,6 +20,21 @@
 }
 /**/
 /**/
+div#block-superfish-1 {
+  border-top: 1px solid #D9D9D9;
+  border-bottom: 1px solid #D9D9D9;
+}
+div#block-superfish-1 ul {
+  float:none;
+  padding-bottom: 0em !important;
+}
+div#block-superfish-1 ul li {
+  line-height:0.99;
+}
+div#block-superfish-1 ul li.active-trail a {
+}
+/**/
+/**/
 div.node {
   margin: 0em 0em 1em 0em;
   padding: 0em 0em 1em 0em;
