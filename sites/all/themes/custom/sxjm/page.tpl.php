@@ -41,6 +41,10 @@
       </div>
       <?php endif; ?>
       <?php print $main_header ?>
+      <!-- breadcrumb -->
+      <?php if(!empty($breadcrumb)) :?>
+      <div id="breadcrumb"><?php print $breadcrumb ?></div>
+      <?php endif;?><!-- /breadcrumb -->
     </div> <!-- /container-header -->
 
     <!-- container-middle -->
@@ -52,11 +56,6 @@
         <?php print $main_right ?>
       </div>
       <div id="container-middle-main">
-        <!-- breadcrumb -->
-        <?php if(!empty($breadcrumb)) :?>
-        <div id="breadcrumb"><?php print $breadcrumb ?></div>
-        <?php endif;?><!-- /breadcrumb -->
-
         <?php if ($show_messages && $messages): print $messages; endif; ?>
 
         <div id="main-content" class="content">
