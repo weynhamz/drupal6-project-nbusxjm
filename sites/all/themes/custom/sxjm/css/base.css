@@ -158,3 +158,6 @@ div.messages {
   border: 2px dotted #DF7200;
   background: #FFFFBB none no-repeat;
 }
+.theme-settings-bottom {
+  clear: right;
+}
