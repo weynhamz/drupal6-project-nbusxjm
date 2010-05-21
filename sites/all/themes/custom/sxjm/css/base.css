@@ -109,22 +109,3 @@ textarea.form-textarea {
   border: 2px dotted #DF7200;
   background: #FFFFBB none no-repeat;
 }
-/* 说明：不增加额外元素实现清除浮动 （闭合浮动元素 Clear Floats） */
-.content {
-  display: inline-block;
-}
-.content:after {
-  content: ".";
-  height: 0;
-  clear: both;
-  display: block;
-  visibility: hidden;
-}
-/* Hides from IE-mac \*/
-* html .content {
-  height: 1%;
-}
-.content {
-  display: block;
-}
-/* End hide from IE-mac */
