@@ -14,27 +14,15 @@
 }
 /* 三列布局，中间宽度自适应 */
 #container-middle {
-  position: relative;
 }
 #container-middle-left {
-  position: absolute;
-  top: 0px;
-  left: 0px;
   float: left;
   width: 230px;
 }
 #container-middle-main {
-  display: inline-block; /*IE 3px Bug fixed*/
-  position: absolute;
-  top: 0px;
-  left: 230px;
-  right: 275px;
-  bottom: 0px;
+  margin: 0px 250px 0px 230px; /*中间宽度自适应*/
 }
 #container-middle-right {
-  position: absolute;
-  top: 0px;
-  right: 0px;
   float: right;
   width: 250px;
 }
