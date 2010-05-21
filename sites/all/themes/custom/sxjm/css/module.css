@@ -35,6 +35,18 @@ div#block-superfish-1 ul li.active-trail a {
 }
 /**/
 /**/
+div.vertical-tabs {
+  background-color: #FFFFFF !important;
+}
+div.vertical-tabs ul.vertical-tabs-list li.selected {
+  background-color: #FFFFFF !important;
+}
+div.vertical-tabs div.vertical-tabs-panes fieldset.vertical-tabs-pane {
+  border-width: 0px !important;
+  background-color: #FFFFFF !important;
+}
+/**/
+/**/
 div.node {
   margin: 0em 0em 1em 0em;
   padding: 0em 0em 1em 0em;
