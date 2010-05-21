@@ -225,10 +225,21 @@
   border: 1px solid #BBBBBB;
   background: #EEEEEE none no-repeat;
 }
+#container-middle-main #main-content form fieldset legend {
+  font-weight: bold;
+  background: transparent;
+}
+#container-middle-main #main-content form fieldset legend a {
+  color: #000000;
+  margin-right: 1em;
+}
 #container-middle-main #main-content form fieldset.collapsed {
+  margin-bottom: 1em;
+  border-top-width: 2px;
   border-left-width: 0px;
   border-right-width: 0px;
   border-bottom-width: 0px;
+  background-color: transparent;
 }
 #container-middle-main #main-content form div.resizable-textarea {
   width: 100%;
