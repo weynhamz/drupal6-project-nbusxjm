@@ -17,14 +17,14 @@
 }
 #container-middle-left {
   float: left;
-  width: 230px;
+  width: 240px;
 }
 #container-middle-main {
-  margin: 0px 250px 0px 230px; /*中间宽度自适应*/
+  margin: 0px 180px 0px 240px; /*中间宽度自适应*/
 }
 #container-middle-right {
   float: right;
-  width: 250px;
+  width: 180px;
 }
 #container-footer {
 }
