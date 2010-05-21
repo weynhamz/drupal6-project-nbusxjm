@@ -103,7 +103,7 @@ input.teaser-button {
   -moz-background-inline-policy: continuous;
   border-width: 1px;
   border-style: solid;
-  border-color: #EEEEEE #EEEEEE #CCCCCC #CCCCCC;
+  border-color: #EEEEEE #EEEEEE #D9D9D9 #D9D9D9;
   color: #333333;
   cursor: pointer;
   text-align: center;
@@ -121,7 +121,7 @@ textarea.form-textarea {
   -moz-background-inline-policy: continuous;
   border-width: 1px;
   border-style: solid;
-  border-color: #EEEEEE #EEEEEE #CCCCCC #CCCCCC;
+  border-color: #EEEEEE #EEEEEE #D9D9D9 #D9D9D9;
   background-color: #FFFFFF;
   color: #333333;
 }
