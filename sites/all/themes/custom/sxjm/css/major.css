@@ -235,11 +235,25 @@
 }
 #container-middle-main #main-content form fieldset.collapsed {
   margin-bottom: 1em;
+  padding-left: 0em;
+  padding-right: 0em;
   border-top-width: 2px;
   border-left-width: 0px;
   border-right-width: 0px;
   border-bottom-width: 0px;
   background-color: transparent;
+}
+#container-middle-main #main-content form fieldset.collapsed legend {
+  width: 100%;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #CCCCCC;
+  background-color: #EEEEEE;
+}
+#container-middle-main #main-content form fieldset.collapsed legend a {
+  float: left;
 }
 #container-middle-main #main-content form div.resizable-textarea {
   width: 100%;
