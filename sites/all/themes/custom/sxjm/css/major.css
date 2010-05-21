@@ -96,9 +96,9 @@
 #container-middle-main div.content-tabs-primary ul.primary {
   position: absolute;
   z-index: 2;
-  top: -13px;
+  top: -14px;
   top: -14px\9;
-  *top: -15px;
+  *top: -14px;
   left: 0px;
   margin: 0em 0em 0em 0em;
   padding: 0em 0em 0em 2em;
@@ -117,27 +117,35 @@
   -webkit-border-top-left-radius: 5px;
   -webkit-border-top-right-radius: 5px;
   border: 1px solid #BBBBBB;
+  background: #DDDDDD none no-repeat;
+}
+#container-middle-main div.content-tabs-primary ul.primary li:hover {
+  background: #F9F9F9 none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.primary li a {
+  color: #000000;
   margin: 0em 0em 0em 0em;
   padding: 0em 1em 0em 1em;
   border-width: 0px;
-  background: #DDDDDD none no-repeat;
+  background: transparent none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.primary li a:hover {
+  color: #000000;
   border-width: 0px;
-  background: #F9F9F9 none no-repeat;
+  background: transparent none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.primary li.active {
   border-bottom: 1px solid #F9F9F9;
+  background: #F9F9F9 none no-repeat;
+}
+#container-middle-main div.content-tabs-primary ul.primary li.active:hover {
+  background: #F9F9F9 none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.primary li.active a {
   border-width: 0px;
-  background: #F9F9F9 none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.primary li.active a:hover {
   border-width: 0px;
-  background: #F9F9F9 none no-repeat;
 }
 #container-middle-main div.content-tabs-primary ul.secondary {
   margin: 0em 0em 1em 0em;
