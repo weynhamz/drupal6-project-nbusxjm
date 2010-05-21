@@ -128,19 +128,19 @@ textarea.form-textarea {
 textarea.form-textarea {
   font-size: 1em;
 }
-.error {
+div.error {
   border: 1px solid #DD7777;
   background: #FFCCCC none no-repeat;
 }
-.status {
+div.status {
   border: 1px solid #A1F29F;
   background: #4CCE4A none no-repeat;
 }
-.warning {
+div.warning {
   border: 1px solid #FFF500;
   background: #FFFFBB none no-repeat;
 }
-.messages {
+div.messages {
   margin: 0em 1em 1.5em 1em;
   padding: 1em 0.5em 1em 0.5em;
 }
