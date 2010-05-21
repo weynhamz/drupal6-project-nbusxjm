@@ -26,7 +26,7 @@ regions[footer] = Footer Area
 ;features[] = primary_links
 ;features[] = secondary_links
 
-scripts[] = sxjm.js
+scripts[] = js/sxjm.js
 
 stylesheets[all][] = css/base.css
 stylesheets[all][] = css/layer.css
