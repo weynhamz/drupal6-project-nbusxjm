@@ -15,7 +15,7 @@
   <div id="wrapper">
 
   <!-- header -->
-  <div id="header">
+  <div id="header" class="clear-block">
     <?php print $header; ?>
     <?php
       print '<h1 id="title"><a href="'. check_url($front_page) .'" title="'. $site_title .'">';
@@ -48,14 +48,14 @@
     </div> <!-- /container-header -->
 
     <!-- container-middle -->
-    <div id="container-middle">
-      <div id="container-middle-left">
+    <div id="container-middle" class="clear-block">
+      <div id="container-middle-left" class="clear-block">
         <?php print $main_left ?>
       </div>
-      <div id="container-middle-right">
+      <div id="container-middle-right" class="clear-block">
         <?php print $main_right ?>
       </div>
-      <div id="container-middle-main">
+      <div id="container-middle-main" class="clear-block">
         <?php if ($show_messages && $messages): print $messages; endif; ?>
 
         <div id="main-content" class="content">
@@ -69,7 +69,7 @@
     </div> <!-- /container-middle -->
 
     <!-- container-footer -->
-    <div id="container-footer">
+    <div id="container-footer" class="clear-block">
       <?php print $main_footer;?>
       <?php if (!empty($secondary_links)): ?>
       <div id="secondary">
@@ -83,7 +83,7 @@
   </div> <!-- /wrapper -->
 
   <!-- footer -->
-  <div id="footer">
+  <div id="footer" class="clear-block">
     <div id="footer-msg"><?php print $footer_message?></div>
     <?php print $footer ?>
   </div> <!--/footer -->
