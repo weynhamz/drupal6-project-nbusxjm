@@ -226,6 +226,15 @@
 #container-middle-main #main-content form input.form-submit {
   background-color: #DDDDDD;
 }
+#container-middle-main #main-content form input.form-submit#edit-submit {
+  background-color: #008800;
+}
+#container-middle-main #main-content form input.form-submit#edit-delete {
+  background-color: #FF0000;
+}
+#container-middle-main #main-content form input.form-submit#edit-preview {
+  background-color: #FFCC00;
+}
 #container-middle-main #main-content form fieldset {
   border: 1px solid #BBBBBB;
   background: #EEEEEE none no-repeat;
