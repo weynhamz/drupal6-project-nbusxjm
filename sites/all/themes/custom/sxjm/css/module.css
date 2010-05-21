@@ -83,7 +83,7 @@ div#comments div.comment-published {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border: 1px solid #BBBBBB;
-  background: #EAF5FB none no-repeat;
+  background: #F9F9F9 none no-repeat;
 }
 div#comments div.comment-published div.submitted {
 }
