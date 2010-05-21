@@ -1,0 +1,44 @@
+#wrapper {
+  width: 100%;
+  min-height: 100%; /* 使 #footer 总位于页面底部 */
+}
+* html #wrapper {
+  height: 100%;
+}
+#header {
+  position: relative; /* 为 mission 和 search-form 提供相对于父元素的绝对定位 */
+}
+#container {
+}
+#container-header {
+}
+/* 三列布局，中间宽度自适应 */
+#container-middle {
+  position: relative;
+}
+#container-middle-left {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  float: left;
+  width: 230px;
+}
+#container-middle-main {
+  display: inline-block; /*IE 3px Bug fixed*/
+  position: absolute;
+  top: 0px;
+  left: 230px;
+  right: 275px;
+  bottom: 0px;
+}
+#container-middle-right {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  float: right;
+  width: 250px;
+}
+#container-footer {
+}
+#footer {
+}

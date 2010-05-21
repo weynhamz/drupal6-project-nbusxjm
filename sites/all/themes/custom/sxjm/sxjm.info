@@ -1,0 +1,34 @@
+; $Id$
+; Name and core are required; all else is optional.
+
+core = 6.x
+name = SXJM
+engine = phptemplate
+screenshot = screenshot.png
+description = Light Designed theme
+
+regions[header] = Header Area
+regions[main_header] = Main Header Area
+regions[main_left] = Main Left Area
+regions[main_main] = Main Main Area
+regions[main_right] = Main Right Area
+regions[main_footer] = Main Footer Area
+regions[footer] = Footer Area
+
+;features[] = logo
+;features[] = name
+;features[] = slogan
+;features[] = mission
+;features[] = node_user_picture
+;features[] = comment_user_picture
+;features[] = search
+;features[] = favicon
+;features[] = primary_links
+;features[] = secondary_links
+
+scripts[] = sxjm.js
+
+stylesheets[all][] = css/base.css
+stylesheets[all][] = css/layer.css
+stylesheets[all][] = css/major.css
+stylesheets[all][] = css/module.css
