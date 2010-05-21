@@ -51,6 +51,10 @@ div.node {
   margin: 0em 0em 1em 0em;
   padding: 0em 0em 1em 0em;
 }
+div.teaser {
+  border: none;
+  background: none;
+}
 div.node h2 {
   padding: 0.5em 0.3em;
   margin: 0px 0px 5px 0px;
