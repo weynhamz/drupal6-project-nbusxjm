@@ -1,5 +1,4 @@
 <?php
-// $Id: destinations.filesource.inc,v 1.2 2009/08/25 16:05:05 ronan Exp $
 
 
 /**
@@ -75,16 +74,8 @@ class backup_migrate_files_destination_filesource extends backup_migrate_destina
   /**
    * Get the form for the backup settings for this destination.
    */
-  function backup_settings_form(&$form, $settings) {
-    $form['files'] = array(
-      "#type" => "fieldset",
-      "#title" => t("File Backup Options"),
-      "#collapsible" => TRUE,
-      "#collapsed" => TRUE,
-      "#tree" => FALSE,
-      '#weight' => 6,
-    );
-    $form['files']['exclude_filepaths'] = array(
+  function backup_settings_form($settings) {
+    $form['exclude_filepaths'] = array(
       "#type" => "textarea",
       "#multiple" => TRUE,
       "#title" => t("Exclude the following files or directories"),
@@ -100,11 +91,15 @@ class backup_migrate_files_destination_filesource extends backup_migrate_destina
   function backup_to_file($file, $settings) {
     if ($this->check_libs()) {
       $excluded_paths = empty($settings->filters['exclude_filepaths']) ? '' : $settings->filters['exclude_filepaths'];
-      $files = $this->get_files_to_backup($this->get_location(), $this->get_excluded_paths($excluded_paths), realpath('.') . '/');
-      $file->push_type('tar');
-      $gz = new Archive_Tar($file->filepath(), false);
-      $gz->addModify($files, $file->name .'/files', $this->get_location());
-      return $file;
+      $files = $this->get_files_to_backup($this->get_location(), $settings, $this->get_excluded_paths($excluded_paths), realpath('.') . '/');
+      if ($files) {
+        $file->push_type('tar');
+        $gz = new Archive_Tar($file->filepath(), false);
+        $gz->addModify($files, $file->name . '/files', $this->get_location());
+        return $file;
+      }
+      backup_migrate_backup_fail('No files available.', array(), $settings);
+      return FALSE;
     }
     return FALSE;
   }
@@ -115,9 +110,8 @@ class backup_migrate_files_destination_filesource extends backup_migrate_destina
   function restore_from_file($file, &$settings) {
     if ($this->check_libs()) {
       $from = $file->pop_type();
-      require_once './'. drupal_get_path('module', 'backup_migrate_files') .'/includes/Tar.php';
       $tar = new Archive_Tar($from->filepath());
-      $tar->extractModify($this->get_location(), $file->name .'/files');
+      $tar->extractModify($this->get_location(), $file->name . '/files');
       return $file;
     }
     return FALSE;
@@ -126,20 +120,47 @@ class backup_migrate_files_destination_filesource extends backup_migrate_destina
   /**
    * Get a list of files to backup from the given set if dirs. Exclude any that match the array $exclude.
    */
-  function get_files_to_backup($dir, $exclude = array(), $base_dir = '') {
+  function get_files_to_backup($dir, $settings, $exclude = array(), $base_dir = '') {
     $out = array();
-    $handle = opendir($dir);
-    while (($file = readdir($handle)) !== FALSE) {
-      if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
-         $file = realpath($dir. '/'. $file);
-         if (is_dir($file)) {
-            $out = array_merge($out, $this->get_files_to_backup($file, $exclude, $base_dir));
-         } else {
-            $out[] = str_replace($base_dir, '', $file);
-         }
-      }
+    if (!file_exists($dir)) {
+      backup_migrate_backup_fail('Directory %dir does not exist.', array('%dir' => $dir), $settings);
+      return FALSE;
     }
-    closedir($handle);
+    if ($handle = @opendir($dir)) {
+      while (($file = readdir($handle)) !== FALSE) {
+        if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
+          $file = realpath($dir . '/' . $file);
+          if (is_dir($file)) {
+            $subdir = $this->get_files_to_backup($file, $settings, $exclude, $base_dir);
+            // If there was an error reading the subdirectory then abort the backup.
+            if ($subdir === FALSE) {
+              closedir($handle);
+              return FALSE;
+            }
+            // If the directory is empty, add an empty directory.
+            if (count($subdir) == 0) {
+              $out[] = str_replace($base_dir, '', $file);
+            }
+            $out = array_merge($out, $subdir);
+          }
+          else {
+            if (is_readable($file)) {
+              $out[] = str_replace($base_dir, '', $file);
+            }
+            else {
+              backup_migrate_backup_fail('The directory cannot be backed up because the file %file cannot be read by the web server.', array('%file' => str_replace($base_dir, '', $file)), $settings);
+              closedir($handle);
+              return FALSE;
+            }
+          }
+        }
+      }
+      closedir($handle);
+    }
+    else {
+      backup_migrate_backup_fail('Could not open directory %dir', array('%dir' => $dir), $settings);
+      return FALSE;
+    }
     return $out;
   }
 
@@ -158,29 +179,38 @@ class backup_migrate_files_destination_filesource extends backup_migrate_destina
    * Check that the required libraries are installed.
    */
   function check_libs() {
-    // Switch to the includes directory so that include will find local copies of PEAR.php and Tar.php
-    $dir = getcwd();
-    chdir('./' . drupal_get_path('module', 'backup_migrate_files') .'/includes');
+    $result = true;
+
+    // Extend inlcude path with path to this module's includes directory.
+    $includes_directory = './' . drupal_get_path('module', 'backup_migrate_files') . '/includes';
+    $include_path_old = set_include_path($includes_directory . ';' . get_include_path());
 
     // Check if PEAR.php is present in a non-fatal way and error gracefully if it isn't.
-    include 'PEAR.php';
+    include_once 'PEAR.php';
     if (!class_exists('PEAR')) {
       _backup_migrate_message('PEAR is not installed correctly. See the README.txt file in the backup_migrate_files module directory for help.', array(), 'error');
-      chdir($dir);
-      return FALSE;
+      $result = false;
     }
 
     // Check if Tar.php is present in a non-fatal way and error gracefully if it isn't.
-    include 'Tar.php';
-    if (!class_exists('Archive_Tar')) {
-      _backup_migrate_message('Archive_Tar is not installed correctly. See the README.txt file in the backup_migrate_files module directory for help.', array(), 'error');
-      chdir($dir);
-      return FALSE;
+    if ($result) {
+      // Try to get version in this module's includes directory first, but prevent warning texts being output.
+      if (file_exists($includes_directory . '/Tar.php')) {
+        include_once $includes_directory . '/Tar.php';
+      }
+      if (!class_exists('Archive_Tar')) {
+        // Try to get via PEAR directory structure.
+        include_once 'Archive/Tar.php';
+        if (!class_exists('Archive_Tar')) {
+          _backup_migrate_message('Archive_Tar is not installed correctly. See the README.txt file in the backup_migrate_files module directory for help.', array(), 'error');
+          $result = false;
+        }
+      }
     }
 
-    // If we got here then the files were included just fine.
-    chdir($dir);
-    return TRUE;
+    // Restore include path.
+    set_include_path($include_path_old);
+    return $result;
   }
 }
 
