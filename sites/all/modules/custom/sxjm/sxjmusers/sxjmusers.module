@@ -170,7 +170,7 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
       //数学建模用户个人页面
       return sxjmusers_view($account);
     case 'load':
-      //if(!is_sxjmusers($account->uid)) break;
+      if(!is_sxjmusers($account->uid)) break;
       //加载数学建模用户信息到 user 对象中
       $dbresult = db_query("SELECT * FROM {sxjmusers} WHERE `uid` = '%d'", $account->uid);
       while ($result = db_fetch_object($dbresult)) {
@@ -228,14 +228,12 @@ function sxjmusers_user($op, &$edit, &$account, $category = NULL) {
       }
       return $form;
     case 'register':
-      if(!is_sxjmusers($account->uid)) break;
       return sxjmusers_register_withpic();
     case 'validate':
-      if(!is_sxjmusers($account->uid)) break;
       sxjmusers_register_withpic_validate($edit, $account, $category);
       break;
     case 'update':
-      //if(!is_sxjmusers($account->uid)) break;
+      if(!is_sxjmusers($account->uid)) break;
       // 保存个人资料的更新
       if($category == '个人资料') {
         sxjmusers_realinfo_save($edit, $account, $category, TRUE);
